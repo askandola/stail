@@ -2,10 +2,13 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser
 from .managers import UserManager
 
+import random
+import string
+
 # Create your models here.
 
 def uploadPath(instance, filename):
-    return f"id/{instance.id}_{filename}"
+    return f"id/{instance.name}_{''.join(random.choice(string.ascii_letters) for _ in range(5))}_{filename}"
 
 class User(AbstractBaseUser):
     
@@ -30,7 +33,7 @@ class User(AbstractBaseUser):
     REQUIRED_FIELDS = []
 
     def get_short_name(self):
-        # The user is identified by their team name
+        # The user is identified by their email
         return self.email
 
     def has_perm(self, perm, obj=None):
