@@ -48,3 +48,16 @@ class User(AbstractBaseUser):
     
     def __str__(self):
         return self.email
+
+class Event(models.Model):
+    name = models.CharField(max_length=150)
+    description = models.TextField(default="")
+    date = models.DateField()
+    time = models.TimeField()
+    # venue = models.CharField(max_length=150) to be discussed
+    image = models.URLField(defualt="") #defaut for image url, to be discussed
+    
+    # is_active = models.BooleanField(default=True) to be discussed
+
+    def __str__(self):
+        return self.name
