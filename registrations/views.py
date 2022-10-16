@@ -5,9 +5,6 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
-import random
-import string
-
 from .serializers import UserSerializer
 
 # Create your views here.
@@ -18,6 +15,7 @@ class Register(APIView):
             'email': request.data.get('email'),
             'name': request.data.get('name'),
             'id_proof': request.data.get('id_proof'),
+            'password': request.data.get('password'),
         }
         is_error = False
         roll_no_missing = False
@@ -36,8 +34,6 @@ class Register(APIView):
                 college_missing = True
                 is_error = True
             data['college'] = college
-        password = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(7))
-        data['password'] = password
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
