@@ -3,13 +3,20 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Event
+from .models import Event, total_views
 from .serializers import EventSerializer
 
 # Create your views here.
 
 class EventsView(APIView):
     def get(self, request):
+        if (total_views.objects.count()==0):
+            t=total_views(hits=1)
+            t.save()
+        else:
+            t=total_views.objects.first()
+            t.hits+=1
+            t.save()
         events_queryset = Event.objects.all()
         print(events_queryset)
         serializer = EventSerializer(events_queryset, many=True)
