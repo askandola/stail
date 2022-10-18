@@ -4,6 +4,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from .models import User
+from django.core.mail import send_mail
 
 from .serializers import UserSerializer
 
@@ -62,3 +64,58 @@ class Login(APIView):
             return Response({'error': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
         token, created = Token.objects.get_or_create(user=user)
         return Response({'key': token.key}, status=status.HTTP_200_OK)
+
+# class reset_request(APIView):
+#     def post(self, request):
+#         data = request.data
+#         email = data['email']
+#         user = User.objects.get(email=email)
+#         if User.objects.filter(email=email).exists():
+#             # send email with otp
+#             send_mail(
+#             'OTP for password reset',
+#             f'The OTP to change your password is {user.otp}. Do not share this with anyone.',
+#             'from@example.com',
+#             [user.email],
+#             fail_silently=False,
+#             )
+#             message = {
+#                 'status': 'Success'}
+#             return Response(message, status=status.HTTP_200_OK)
+#         else:
+#             message = {
+#                 'error': 'User does not exist'}
+#             return Response(message, status=status.HTTP_400_BAD_REQUEST)
+        
+# class reset_password(APIView):
+#     def post(self, request):
+#         data = request.data
+#         user = User.objects.get(email=data['email'])
+#         if user.is_active:
+#             if user.tries<5:
+#                 # Check if otp is valid
+#                 if data['otp'] == user.opt:
+#                     if data['password'] != '':
+#                         # Change Password
+#                         user.set_password(data['password'])
+#                         user.save() # Here user otp will also be changed on save automatically 
+#                         return Response('any response or you can add useful information with response as well. ')
+#                     else:
+#                         message = {
+#                             'error': 'Password cant be empty'}
+#                         return Response(message, status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     user.tries += 1
+#                     message = {
+#                         'error': 'OTP did not match','tries_left': 5-user.tries}
+#                     return Response(message, status=status.HTTP_400_BAD_REQUEST)
+#             else:
+#                 message={
+#                     'error': 'You have exceeded the number of tries. Request password change again for new OTP'}
+#                 user.tries = 0
+#                 user.save()
+#                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
+#         else:
+#             message = {
+#                 'error': 'Something went wrong'}
+#             return Response(message, status=status.HTTP_400_BAD_REQUEST)
