@@ -16,9 +16,9 @@ class User(AbstractBaseUser):
     name = models.CharField(max_length=150)
 
     is_thaparian = models.BooleanField(blank=True, default=False)
-    roll_no = models.CharField(max_length=20, null=True, blank=True, default=None)
+    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
 
-    id_proof = models.ImageField(upload_to=uploadPath, blank=True, default="default.png")
+    id_proof = models.ImageField(upload_to=uploadPath, null=True, blank=True, default=None)
 
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
     
@@ -32,8 +32,8 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     
-    # otp = models.CharField(max_length=6, null=True, blank=True)
-    # tries=models.IntegerField(default=0)
+    # otp = models.CharField(max_length=6, null=True, blank=True, default=None)
+    # tries = models.IntegerField(default=0)
     
     # def save(self, *args, **kwargs):
     #     number_list = [x for x in range(10)]  # Use of list comprehension

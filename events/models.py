@@ -4,23 +4,24 @@ from registrations.models import User
 
 # Create your models here.
 
-def uploadPath(instance, filename):
+def eventImageUploadPath(instance, filename):
     return f"event/{instance.name}_{filename}"
 
 class Event(models.Model):
     name = models.CharField(max_length=150)
-    description = models.TextField(default="")
+    description = models.TextField(null=True, blank=True, default=None)
     date = models.DateField()
     time = models.TimeField()
-    # venue = models.CharField(max_length=150) to be discussed
-    image = models.ImageField(upload_to=uploadPath, null=True, blank=True, default=None) #defaut for image url, to be discussed
-    intra_thapar = models.BooleanField(default=False)
-    # is_active = models.BooleanField(default=True) to be discussed
+    venue = models.CharField(max_length=150, null=True, blank=True, default=None)
+    image = models.ImageField(upload_to=eventImageUploadPath, null=True, blank=True, default=None)
+    intra_thapar = models.BooleanField(blank=True, default=False)
+    is_active = models.BooleanField(blank=True, default=True)
 
     users = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
         return self.name
     
-class total_views(models.Model):
-    hits=models.IntegerField(default=0)
+class Visit(models.Model):
+    event = models.ForeignKey(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)
+    hits = models.IntegerField(blank=True, default=0)

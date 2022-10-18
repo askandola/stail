@@ -1,29 +1,29 @@
 from django.contrib.auth import authenticate
+from django.core.mail import send_mail
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
-from .models import User
-from django.core.mail import send_mail
 
 from .serializers import UserSerializer
+from .models import User
 
 # Create your views here.
 
-class Register(APIView):
+class RegisterView(APIView):
     def post(self, request):
         data = {
             'email': request.data.get('email'),
             'name': request.data.get('name'),
-            'id_proof': request.data.get('id_proof'),
             'password': request.data.get('password'),
         }
         is_error = False
         roll_no_missing = False
         college_missing = False
+        id_missing = False
         is_thaparian = request.data.get('is_thaparian')
-        if is_thaparian==True:
+        if is_thaparian=="true":
             roll_no = request.data.get('roll_no')
             if roll_no is None:
                 roll_no_missing = True
@@ -35,7 +35,13 @@ class Register(APIView):
             if college is None:
                 college_missing = True
                 is_error = True
+            id_proof = request.data.get('id_proof')
+            if id_proof is None:
+                id_missing = True
+                is_error = True
             data['college'] = college
+            data['id_proof'] = id_proof
+            print(id_proof)
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
@@ -51,11 +57,16 @@ class Register(APIView):
                     errors['college'] = ['College name required']
                 else:
                     errors['college'].append("College name required.")
-            return Response({'error': errors}, status=status.HTTP_400_BAD_REQUEST)
+            if id_missing:
+                if errors.get('id_proof') is None:
+                    errors['id_proof'] = ['ID proof required']
+                else:
+                    errors['id_proof'].append("ID proof required.")
+            return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
-class Login(APIView):
+class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
@@ -90,11 +101,11 @@ class Login(APIView):
 # class reset_password(APIView):
 #     def post(self, request):
 #         data = request.data
-#         user = User.objects.get(email=data['email'])
-#         if user.is_active:
+#         user = User.objects.get(email=data.get('email'))
+#         if user is not None:
 #             if user.tries<5:
 #                 # Check if otp is valid
-#                 if data['otp'] == user.opt:
+#                 if data['otp'] == user.otp:
 #                     if data['password'] != '':
 #                         # Change Password
 #                         user.set_password(data['password'])
@@ -117,5 +128,5 @@ class Login(APIView):
 #                 return Response(message, status=status.HTTP_400_BAD_REQUEST)
 #         else:
 #             message = {
-#                 'error': 'Something went wrong'}
+#                 'error': 'User doesn't exist.'}
 #             return Response(message, status=status.HTTP_400_BAD_REQUEST)

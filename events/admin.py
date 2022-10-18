@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import Event, total_views
+from .models import Event, Visit
 
 # Register your models here.
 
@@ -20,5 +20,8 @@ class EventAdmin(ImportExportModelAdmin):
     def usersRegistered(self, obj):
         return obj.users.count()
 
+class VisitAdmin(admin.ModelAdmin):
+    list_display = ['id', 'hits', 'event']
+
 admin.site.register(Event, EventAdmin)
-admin.site.register(total_views)
+admin.site.register(Visit, VisitAdmin)

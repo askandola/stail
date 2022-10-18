@@ -3,24 +3,23 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from .models import Event, total_views
 from .serializers import EventSerializer
+from .models import Event, Visit
 
 # Create your views here.
 
-class EventsView(APIView):
+class EventsListView(APIView):
     def get(self, request):
-        if (total_views.objects.count()==0):
-            t=total_views(hits=1)
-            t.save()
+        visit = Visit.objects.filter(event=None).first()
+        if (visit==None):
+            visit = Visit(hits=1)
         else:
-            t=total_views.objects.first()
-            t.hits+=1
-            t.save()
+            visit.hits += 1
+        visit.save()
         events_queryset = Event.objects.all()
         print(events_queryset)
         serializer = EventSerializer(events_queryset, many=True)
-        return Response({'events': serializer.data}, status=status.HTTP_200_OK)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 class EventView(APIView):
     def get(self, request, id):
@@ -28,6 +27,12 @@ class EventView(APIView):
         print(event_queryset)
         if event_queryset is None:
             return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
+        visit = Visit.objects.filter(event=event_queryset).first()
+        if visit is None:
+            visit = Visit(event=event_queryset, hits=1)
+        else:
+            visit.hits += 1
+        visit.save()
         serializer = EventSerializer(event_queryset)
         data = serializer.data.copy()
         user = request.user
@@ -48,7 +53,7 @@ class EventRegisterView(APIView):
             return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
-            return Response({'error': 'Permission denied'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         if not user.event_set.filter(id=event_id).exists():
             event.users.add(user)
             event.save()
