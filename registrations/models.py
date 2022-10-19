@@ -33,8 +33,7 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
     
-    # otp = models.CharField(max_length=6, null=True, blank=True, default=None)
-    # tries = models.IntegerField(default=0)
+    otp = models.CharField(max_length=7, null=True, blank=True, default=None)
     
     # def save(self, *args, **kwargs):
     #     number_list = [x for x in range(10)]  # Use of list comprehension
