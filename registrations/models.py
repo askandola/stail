@@ -20,6 +20,7 @@ class User(AbstractBaseUser):
     roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
 
     id_proof = models.ImageField(upload_to=uploadPath, null=True, blank=True, default=None)
+    id_proof_url = models.URLField(max_length=5000, null=True, blank=True, default=None)
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
     
     is_active = models.BooleanField(default=True)
