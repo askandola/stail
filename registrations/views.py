@@ -1,5 +1,6 @@
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
+from django.core.files.storage import default_storage
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +10,24 @@ from rest_framework.authtoken.models import Token
 from .serializers import UserSerializer
 from .models import User
 
+# import pyrebase, random, string
+# from decouple import config
+
 # Create your views here.
+
+# firebaseConfig = {
+#     "apiKey": config("apiKey"),
+#     "authDomain": config("authDomain"),
+#     "projectId": config("projectId"),
+#     "storageBucket": config("storageBucket"),
+#     "messagingSenderId": config("messagingSenderId"),
+#     "appId": config("appId"),
+#     "measurementId": config("measurementId"),
+#     "databaseURL": config("databaseURL")
+# }
+
+# firebase = pyrebase.initialize_app(firebaseConfig)
+# storage = firebase.storage()
 
 class RegisterView(APIView):
     def post(self, request):
@@ -17,11 +35,13 @@ class RegisterView(APIView):
             'email': request.data.get('email'),
             'name': request.data.get('name'),
             'password': request.data.get('password'),
+            'phone_no': request.data.get('phone_no'),
         }
         is_error = False
         roll_no_missing = False
         college_missing = False
         id_missing = False
+        save_id = False
         is_thaparian = request.data.get('is_thaparian')
         if is_thaparian=="true":
             roll_no = request.data.get('roll_no')
@@ -39,9 +59,10 @@ class RegisterView(APIView):
             if id_proof is None:
                 id_missing = True
                 is_error = True
+            else:
+                save_id = True
             data['college'] = college
             data['id_proof'] = id_proof
-            print(id_proof)
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
@@ -63,6 +84,12 @@ class RegisterView(APIView):
                 else:
                     errors['id_proof'].append("ID proof required.")
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
+        # if save_id:
+        #     file = request.data.get('id_proof')
+        #     filename = ''.join(random.choice(string.ascii_letters) for _ in range(11))+file.name
+        #     file_save = default_storage.save(filename, file)
+        #     storage.child('id/'+filename).put('media/'+filename)
+        #     file_delete = default_storage.delete(filename)
         serializer.save()
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 

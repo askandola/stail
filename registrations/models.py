@@ -14,12 +14,12 @@ class User(AbstractBaseUser):
     
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
+    phone_no = models.CharField(max_length=15)
 
     is_thaparian = models.BooleanField(blank=True, default=False)
     roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
 
     id_proof = models.ImageField(upload_to=uploadPath, null=True, blank=True, default=None)
-
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
     
     is_active = models.BooleanField(default=True)

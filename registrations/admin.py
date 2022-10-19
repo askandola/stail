@@ -14,7 +14,7 @@ class UserResource(ModelResource):
 class UserModelAdmin(ImportExportModelAdmin):
     resource_class = UserResource
 
-    list_display = ('id', 'email', 'name', 'college')
+    list_display = ('id', 'email', 'name', 'phone_no', 'college')
     list_display_links = ('id', 'email')
     list_filter = ('is_thaparian',)
     list_per_page = 50

@@ -13,5 +13,5 @@ class Sponsor(models.Model):
 class Query(models.Model):
     name = models.CharField(max_length=150)
     email = models.EmailField()
-    phone = models.CharField(max_length=15)
+    phone_no = models.CharField(max_length=15)
     description = models.TextField()

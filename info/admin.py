@@ -16,7 +16,7 @@ class SponsorResource(ModelResource):
 
 class QueryAdmin(ImportExportModelAdmin):
     resource_class = QueryResource
-    list_display = ['id', 'name', 'email', 'phone']
+    list_display = ['id', 'name', 'email', 'phone_no']
     list_display_links = ['id', 'name']
     list_per_page = 50
 
