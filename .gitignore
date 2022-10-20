@@ -38,6 +38,8 @@ __pycache__
 #environment variables
 .env
 
+database
+
 #virtual environment
 venv
 
@@ -50,3 +52,5 @@ media
 #ssl certificates
 privkey.pem
 cert.pem
+
+docker-compose.yml
