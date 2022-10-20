@@ -23,5 +23,5 @@ class Event(models.Model):
         return self.name
     
 class Visit(models.Model):
-    event = models.ForeignKey(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)
+    event = models.OneToOneField(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)
     hits = models.IntegerField(blank=True, default=0)

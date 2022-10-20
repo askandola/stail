@@ -101,7 +101,7 @@ class RegisterView(APIView):
             storage.child('id/'+filename).put('media/'+sysFilename)
             url = storage.child('id/'+filename).get_url(user['idToken'])
             sys_delete = default_storage.delete(sysFilename)
-            data['id_proof_url'] = url
+            data['id_proof'] = url
             serializer = UserSerializer(data=data)
             if not serializer.is_valid():
                 return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -121,7 +121,7 @@ class LoginView(APIView):
 class reset_request(APIView):
     def post(self, request):
         data = request.data
-        email = data['email']
+        email = data.get('email')
         user = User.objects.filter(email=email).first()
         if user is not None:
             # send email with otp

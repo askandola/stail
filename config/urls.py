@@ -18,9 +18,12 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
+from info.views  import dashboardView
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('sat/api/auth/', include('registrations.urls')),
-    path('sat/api/event/', include('events.urls')),
-    path('sat/api/info/', include('info.urls'))
+    path('auth/', include('registrations.urls')),
+    path('event/', include('events.urls')),
+    path('info/', include('info.urls')),
+    path('dashboard/', dashboardView),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
