@@ -27,3 +27,5 @@ class SponsorAdmin(ImportExportModelAdmin):
 
 admin.site.register(Query, QueryAdmin)
 admin.site.register(Sponsor, SponsorAdmin)
+
+admin.site.login_template = 'info/login.html'
