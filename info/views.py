@@ -34,7 +34,7 @@ class SponsorsView(APIView):
 
 
 @staff_member_required
-def dashboardView(request):
+def DashboardView(request):
     events_queryset = Event.objects.all()
     registrations = User.objects.filter(is_staff=False).count()
     total_visits = Visit.objects.filter(event=None).first()
@@ -80,3 +80,24 @@ def streamEventRegstCSV(request, id):
             },
         )
     raise 404
+
+
+class VerifyRegistrationView(APIView):
+    def post(self, request, slug):
+        visit = Visit.objects.filter(endpoint=slug).first()
+        if visit is None:
+            return Response({'error': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
+        user = visit.user
+        event = visit.event
+        response = {
+            'event': event.name,
+            'email': user.email,
+            'name': user.name,
+        }
+        if user.is_thaparian:
+            response['is_thaparian'] = True
+            response['roll_no'] = user.roll_no
+        else:
+            response['college'] = user.college
+            response['id_proof'] = user.id_proof
+        return Response(response, status.HTTP_200_OK)

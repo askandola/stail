@@ -18,12 +18,12 @@ from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
 
-from info.views  import dashboardView
+from info.views  import DashboardView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('registrations.urls')),
     path('event/', include('events.urls')),
     path('info/', include('info.urls')),
-    path('dashboard/', dashboardView),
+    path('dashboard/', DashboardView),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

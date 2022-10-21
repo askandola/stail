@@ -1,3 +1,8 @@
+from django.conf import settings
+from django.core.mail import send_mail
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -5,6 +10,9 @@ from rest_framework.permissions import IsAuthenticated
 
 from .serializers import EventSerializer
 from .models import Event, Visit
+from info.models import VerifyEndpoint
+
+import random, string, os, qrcode
 
 # Create your views here.
 
@@ -57,4 +65,20 @@ class EventRegisterView(APIView):
         if not user.event_set.filter(id=event_id).exists():
             event.users.add(user)
             event.save()
+            if event.verification_required:
+                endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
+                while VerifyEndpoint.objects.filter(endpoint=endpoint).exists():
+                    endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
+                verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user)
+                verificationEntry.save()
+                filename = 'qrcode/' + str(event_id) + '_' + str(user.id) + '_temp.png'
+                qr = qrcode.make(('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/info/verify/' + endpoint + '/')
+                qr.save(os.path.join(settings.MEDIA_ROOT, filename))
+                url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/media/' + filename
+                subject = "Thankyou for registering"
+                context = {'url': url}
+                html_message = render_to_string('events/mail.html', context)
+                message = strip_tags(html_message)
+                from_email = settings.EMAIL_HOST_USER
+                send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_200_OK)

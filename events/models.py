@@ -16,6 +16,7 @@ class Event(models.Model):
     image = models.ImageField(upload_to=eventImageUploadPath, null=True, blank=True, default=None)
     intra_thapar = models.BooleanField(blank=True, default=False)
     is_active = models.BooleanField(blank=True, default=True)
+    verification_required = models.BooleanField(blank=True, default=False)
 
     users = models.ManyToManyField(User, blank=True)
 

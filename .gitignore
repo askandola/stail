@@ -44,10 +44,10 @@ database
 venv
 
 #static files root directory
-static
+/static
 
 #media files root
-media
+/media
 
 #ssl certificates
 privkey.pem

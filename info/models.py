@@ -1,5 +1,8 @@
 from django.db import models
 
+from registrations.models import User
+from events.models import Event
+
 # Create your models here.
 
 def sponsorImageUploadPath(instance, filename):
@@ -15,3 +18,8 @@ class Query(models.Model):
     email = models.EmailField()
     phone_no = models.CharField(max_length=15)
     description = models.TextField()
+
+class VerifyEndpoint(models.Model):
+    endpoint = models.CharField(max_length=150)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
