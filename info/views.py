@@ -11,7 +11,7 @@ from .models import Sponsor
 from events.models import Event, Visit
 from registrations.models import User
 
-import csv
+import csv, itertools
 
 # Create your views here.
 
@@ -72,8 +72,11 @@ def streamEventRegstCSV(request, id):
         users = event.users.all()
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
+        headGen = (writer.writerow(['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
+        dataGen = (writer.writerow([user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in users)
+        gen = itertools.chain(headGen, dataGen)
         return StreamingHttpResponse(
-            (writer.writerow([user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in users),
+            gen,
             content_type="text/csv",
             headers={
                 'Content-Disposition': f'attachment; filename="{event.name}_registrations.csv"'
