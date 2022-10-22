@@ -106,6 +106,7 @@ class RegisterView(APIView):
             if not serializer.is_valid():
                 return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
+        send_mail("Registration succesfull.", "Thankyou for registering for STAIL.", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
 class LoginView(APIView):
