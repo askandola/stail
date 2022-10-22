@@ -70,7 +70,7 @@ class EventRegisterView(APIView):
                 verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user)
                 verificationEntry.save()
                 filename = 'qrcode/' + str(event_id) + '_' + str(user.id) + '_temp.png'
-                qr = qrcode.make(('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/info/verify/' + endpoint + '/')
+                qr = qrcode.make(('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/info/verify/' + endpoint)
                 qr.save(os.path.join(settings.MEDIA_ROOT, filename))
                 url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/media/' + filename
                 subject = "Thankyou for registering"
