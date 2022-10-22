@@ -5,4 +5,4 @@ from .models import Event
 class EventSerializer(ModelSerializer):
     class Meta:
         model = Event
-        exclude = ['users',]
+        exclude = ['users', 'verification_required', 'is_active']

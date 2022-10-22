@@ -24,29 +24,27 @@ class EventsListView(APIView):
         else:
             visit.hits += 1
         visit.save()
-        events_queryset = Event.objects.all()
-        print(events_queryset)
+        events_queryset = Event.objects.filter(is_active=True)
         serializer = EventSerializer(events_queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class EventView(APIView):
     def get(self, request, id):
-        event_queryset = Event.objects.filter(id=id).first()
-        print(event_queryset)
-        if event_queryset is None:
+        event = Event.objects.filter(id=id).first()
+        if event is None or not event.is_active:
             return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
-        visit = Visit.objects.filter(event=event_queryset).first()
+        visit = Visit.objects.filter(event=event).first()
         if visit is None:
-            visit = Visit(event=event_queryset, hits=1)
+            visit = Visit(event=event, hits=1)
         else:
             visit.hits += 1
         visit.save()
-        serializer = EventSerializer(event_queryset)
+        serializer = EventSerializer(event)
         data = serializer.data.copy()
         user = request.user
         if not user.is_anonymous:
             data['is_registerd'] = user.event_set.filter(id=id).exists()
-            if event_queryset.intra_thapar and not user.is_thaparian:
+            if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
             else:
                 data['registration_allowed'] = True
@@ -57,7 +55,7 @@ class EventRegisterView(APIView):
     def post(self, request):
         event_id = request.data.get('event')
         event = Event.objects.filter(id=event_id).first()
-        if event is None:
+        if event is None or not event.is_active:
             return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
         user = request.user
         if event.intra_thapar and not user.is_thaparian:

@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 
-from .models import Query, Sponsor
+from .models import Query, Sponsor, VerifyEndpoint
 
 # Register your models here.
 
@@ -13,6 +13,10 @@ class QueryResource(ModelResource):
 class SponsorResource(ModelResource):
     class Meta:
         model = Sponsor
+
+class VerifyResource(ModelResource):
+    class Meta:
+        model = VerifyEndpoint
 
 class QueryAdmin(ImportExportModelAdmin):
     resource_class = QueryResource
@@ -25,7 +29,13 @@ class SponsorAdmin(ImportExportModelAdmin):
     list_display = ['id', 'name']
     list_display_links = ['id', 'name']
 
+class VerifyAdmin(ImportExportModelAdmin):
+    resource_class = VerifyResource
+    list_display = ['id', 'endpoint', 'user', 'event']
+    list_display_links = ['id', 'endpoint']
+
 admin.site.register(Query, QueryAdmin)
 admin.site.register(Sponsor, SponsorAdmin)
+admin.site.register(VerifyEndpoint, VerifyAdmin)
 
 admin.site.login_template = 'info/login.html'

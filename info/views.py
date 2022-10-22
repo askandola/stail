@@ -86,7 +86,7 @@ def streamEventRegstCSV(request, id):
 
 
 class VerifyRegistrationView(APIView):
-    def post(self, request, slug):
+    def get(self, request, slug):
         visit = Visit.objects.filter(endpoint=slug).first()
         if visit is None:
             return Response({'error': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)

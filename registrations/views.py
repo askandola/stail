@@ -16,24 +16,24 @@ from decouple import config
 
 # Create your views here.
 
-firebaseConfig = {
-    "apiKey": config("apiKey"),
-    "authDomain": config("authDomain"),
-    "projectId": config("projectId"),
-    "storageBucket": config("storageBucket"),
-    "messagingSenderId": config("messagingSenderId"),
-    "appId": config("appId"),
-    "measurementId": config("measurementId"),
-    "databaseURL": config("databaseURL")
-}
+# firebaseConfig = {
+#     "apiKey": config("apiKey"),
+#     "authDomain": config("authDomain"),
+#     "projectId": config("projectId"),
+#     "storageBucket": config("storageBucket"),
+#     "messagingSenderId": config("messagingSenderId"),
+#     "appId": config("appId"),
+#     "measurementId": config("measurementId"),
+#     "databaseURL": config("databaseURL")
+# }
 
-firebase = pyrebase.initialize_app(firebaseConfig)
-storage = firebase.storage()
-auth = firebase.auth()
+# firebase = pyrebase.initialize_app(firebaseConfig)
+# storage = firebase.storage()
+# auth = firebase.auth()
 
-user = auth.sign_in_with_email_and_password(config('firebaseAuthEmail'), config('firebaseAuthPassword'))
+# user = auth.sign_in_with_email_and_password(config('firebaseAuthEmail'), config('firebaseAuthPassword'))
 
-allowed_ext = ['.pdf', '.png', '.jpg', '.jpeg']
+# allowed_ext = ['.pdf', '.png', '.jpg', '.jpeg']
 
 class RegisterView(APIView):
     def post(self, request):
@@ -67,16 +67,17 @@ class RegisterView(APIView):
             if id_proof is None:
                 id_missing = True
                 is_error = True
-            else:
-                ext = os.path.splitext(id_proof.name)
-                ext = ext[1]
-                if ext not in allowed_ext:
-                    invalid_file = True
-                    is_error = True
-                elif id_proof.size>512000:
-                    oversize_file = True
-                    is_error = True
-                save_id = True
+            # else:
+            #     ext = os.path.splitext(id_proof.name)
+            #     ext = ext[1]
+            #     if ext not in allowed_ext:
+            #         invalid_file = True
+            #         is_error = True
+            #     elif id_proof.size>512000:
+            #         oversize_file = True
+            #         is_error = True
+            #     save_id = True
+            data['id_proof'] = id_proof
             data['college'] = college
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
@@ -89,22 +90,22 @@ class RegisterView(APIView):
                 errors['college'] = ['College name required']
             if id_missing:
                 errors['id_proof'] = ['ID proof required']
-            elif invalid_file:
-                errors['id_proof'] = ['Invalid file type.']
-            elif oversize_file:
-                errors['id_proof'] = ['File size limit exceeded.']
+            # elif invalid_file:
+            #     errors['id_proof'] = ['Invalid file type.']
+            # elif oversize_file:
+            #     errors['id_proof'] = ['File size limit exceeded.']
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
-        if save_id:
-            file = request.data.get('id_proof')
-            filename = ''.join(random.choice(string.ascii_letters) for _ in range(10)) + '_' + file.name
-            sysFilename = default_storage.save('id_proof/'+filename, file)
-            storage.child('id/'+filename).put('media/'+sysFilename)
-            url = storage.child('id/'+filename).get_url(user['idToken'])
-            sys_delete = default_storage.delete(sysFilename)
-            data['id_proof'] = url
-            serializer = UserSerializer(data=data)
-            if not serializer.is_valid():
-                return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        # if save_id:
+        #     file = request.data.get('id_proof')
+        #     filename = ''.join(random.choice(string.ascii_letters) for _ in range(10)) + '_' + file.name
+        #     sysFilename = default_storage.save('id_proof/'+filename, file)
+        #     storage.child('id/'+filename).put('media/'+sysFilename)
+        #     url = storage.child('id/'+filename).get_url(user['idToken'])
+        #     sys_delete = default_storage.delete(sysFilename)
+        #     data['id_proof'] = url
+        #     serializer = UserSerializer(data=data)
+        #     if not serializer.is_valid():
+        #         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         send_mail("Registration succesfull.", "Thankyou for registering for STAIL.", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
