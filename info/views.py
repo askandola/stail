@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from .serializers import QuerySerializer, SponsorSerializer
-from .models import Sponsor
+from .models import Sponsor, VerifyEndpoint
 from events.models import Event, Visit
 from registrations.models import User
 
@@ -87,11 +87,11 @@ def streamEventRegstCSV(request, id):
 
 class VerifyRegistrationView(APIView):
     def get(self, request, slug):
-        visit = Visit.objects.filter(endpoint=slug).first()
-        if visit is None:
+        entry = VerifyEndpoint.objects.filter(endpoint=slug).first()
+        if entry is None:
             return Response({'error': 'Not Found'}, status=status.HTTP_400_BAD_REQUEST)
-        user = visit.user
-        event = visit.event
+        user = entry.user
+        event = entry.event
         response = {
             'event': event.name,
             'email': user.email,
