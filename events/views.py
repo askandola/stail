@@ -67,12 +67,12 @@ class EventRegisterView(APIView):
                 endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
                 while VerifyEndpoint.objects.filter(endpoint=endpoint).exists():
                     endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
-                verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user)
-                verificationEntry.save()
-                filename = 'qrcode/' + str(event_id) + '_' + str(user.id) + '_temp.png'
+                filename = 'qrcode/' + ''.join(random.choice(string.ascii_letters) for _ in range(5)) + str(event_id) + 'u' + str(user.id) + '.png'
                 qr = qrcode.make(('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/info/verify/' + endpoint)
                 qr.save(os.path.join(settings.MEDIA_ROOT, filename))
                 url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/media/' + filename
+                verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user, url=url)
+                verificationEntry.save()
                 subject = "Thankyou for registering"
                 context = {'url': url}
                 html_message = render_to_string('events/mail.html', context)

@@ -47,9 +47,9 @@ class RegisterView(APIView):
         roll_no_missing = False
         college_missing = False
         id_missing = False
-        invalid_file = False
-        oversize_file = False
-        save_id = False
+        # invalid_file = False
+        # oversize_file = False
+        # save_id = False
         is_thaparian = request.data.get('is_thaparian')
         if is_thaparian=="true":
             roll_no = request.data.get('roll_no')
