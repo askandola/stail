@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import StreamingHttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
+from django.http import Http404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -43,7 +44,7 @@ def DashboardView(request):
         total_visits.save()
     events = []
     for event in events_queryset:
-        data = {'id': event.id, 'name': event.name, 'registrations': event.users.count()}
+        data = {'id': event.id, 'name': event.name, 'registrations': event.teams.count() if event.is_team_event else event.users.count()}
         visit = Visit.objects.filter(event=event).first()
         if visit is not None:
             data['visits'] = visit.hits
@@ -82,7 +83,7 @@ def streamEventRegstCSV(request, id):
                 'Content-Disposition': f'attachment; filename="{event.name}_registrations.csv"'
             },
         )
-    raise 404
+    raise Http404
 
 
 class VerifyRegistrationView(APIView):
