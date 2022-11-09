@@ -34,8 +34,38 @@ class EventsListView(APIView):
             events_queryset = Event.objects.filter(type='EV')
         else:
             raise Http404
-        serializer = EventSerializer(events_queryset, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user = request.user
+        list = []
+        for event in events_queryset:
+            data = {}
+            data['name'] = event.name
+            data['description'] = event.description
+            if event.image_required:
+                data['image'] = event.image
+            else:
+                data['image'] = None
+            data['date'] = event.date
+            data['time'] = event.time
+            data['venue'] = event.venue
+            data['type'] = event.type
+            data['intra_thapar'] = event.intra_thapar
+            data['deadline'] = event.deadline
+            data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+            data['is_team_event'] = event.is_team_event
+            data['min_team_size'] = event.min_team_size
+            data['max_team_size'] = event.max_team_size
+            data['is_registered'] = False
+            data['registration_allowed'] = True
+            if not user.is_anonymous:
+                data['is_registered'] = user.event_set.filter(id=event.id).exists()
+                if event.intra_thapar and not user.is_thaparian:
+                    data['registration_allowed'] = False
+            data['rules'] = []
+            rules = event.rules.order_by('number').all()
+            for rule in rules:
+                data['rules'].append(rule.content)
+            list.append(data)
+        return Response(list, status=status.HTTP_200_OK)
 
 class EventView(APIView):
     def get(self, request, id):
@@ -48,15 +78,34 @@ class EventView(APIView):
         else:
             visit.hits += 1
         visit.save()
-        serializer = EventSerializer(event)
-        data = serializer.data.copy()
         user = request.user
+        data = {}
+        data['name'] = event.name
+        data['description'] = event.description
+        if event.image_required:
+            data['image'] = event.image
+        else:
+            data['image'] = None
+        data['date'] = event.date
+        data['time'] = event.time
+        data['venue'] = event.venue
+        data['type'] = event.type
+        data['intra_thapar'] = event.intra_thapar
+        data['deadline'] = event.deadline
+        data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+        data['is_team_event'] = event.is_team_event
+        data['min_team_size'] = event.min_team_size
+        data['max_team_size'] = event.max_team_size
+        data['is_registered'] = False
+        data['registration_allowed'] = True
         if not user.is_anonymous:
-            data['is_registerd'] = user.event_set.filter(id=id).exists()
+            data['is_registered'] = user.event_set.filter(id=id).exists()
             if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
-            else:
-                data['registration_allowed'] = True
+        data['rules'] = []
+        rules = event.rules.order_by('number').all()
+        for rule in rules:
+            data['rules'].append(rule.content)
         return Response(data, status=status.HTTP_302_FOUND)
 
 class EventRegisterView(APIView):

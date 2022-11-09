@@ -15,10 +15,12 @@ EVENT_TYPE_CHOICES = [
 class Event(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(null=True, blank=True, default=None)
+    
+    image_required = models.BooleanField(default=False)
     image = models.ImageField(upload_to=eventImageUploadPath, null=True, blank=True, default=None)
 
-    date = models.DateField()
-    time = models.TimeField()
+    date = models.DateField(null=True, blank=True, default=None)
+    time = models.TimeField(null=True, blank=True, default=None)
     venue = models.CharField(max_length=150, null=True, blank=True, default=None)
 
     type = models.CharField(max_length=2, choices=EVENT_TYPE_CHOICES, default='EV')
@@ -37,6 +39,11 @@ class Event(models.Model):
 
     def __str__(self):
         return self.name
+
+class Rule(models.Model):
+    event = models.ForeignKey(Event, related_name='rules', on_delete=models.CASCADE)
+    number = models.SmallIntegerField()
+    content = models.CharField(max_length=1000)
 
 class Team(models.Model):
     name = models.CharField(max_length=100)

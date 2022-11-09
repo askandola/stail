@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import Event, Visit, Team
+from .models import Event, Visit, Team, Rule
 
 # Register your models here.
 
@@ -34,6 +34,17 @@ class TeamAdmin(ImportExportModelAdmin):
     list_filter = ['event']
     list_per_page = 100
 
+class RuleResource(ModelResource):
+    class Meta:
+        model = Rule
+
+class RuleAdmin(ImportExportModelAdmin):
+    resource_class = RuleResource
+    list_display = ['id', 'event', 'number']
+    list_filter = ['event']
+    list_per_page = 100
+
 admin.site.register(Event, EventAdmin)
 admin.site.register(Visit, VisitAdmin)
 admin.site.register(Team, TeamAdmin)
+admin.site.register(Rule, RuleAdmin)
