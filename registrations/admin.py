@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 
-from .models import User
+from .models import User, EmailVerification 
 
 # Register your models here.
 
@@ -19,4 +19,14 @@ class UserModelAdmin(ImportExportModelAdmin):
     list_filter = ('is_thaparian',)
     list_per_page = 50
 
+class EmailVerificationResource(ModelResource):
+    class Meta:
+        model = EmailVerification
+
+class EmailVerificationAdmin(ImportExportModelAdmin):
+    resource_class = EmailVerificationResource
+    list_display = ('id', 'slug', 'user')
+    list_per_page = 50
+
 admin.site.register(User, UserModelAdmin)
+admin.site.register(EmailVerification, EmailVerificationAdmin)

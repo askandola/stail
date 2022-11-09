@@ -1,7 +1,9 @@
+from django.shortcuts import render
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 from django.core.files.storage import default_storage
 from django.conf import settings
+from django.http import Http404
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,10 +11,11 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 
 from .serializers import UserSerializer
-from .models import User
+from .models import User, EmailVerification
 
-import pyrebase, random, string, os
-from decouple import config
+import random, string
+# import pyrebase, os
+# from decouple import config
 
 # Create your views here.
 
@@ -35,6 +38,21 @@ from decouple import config
 
 # allowed_ext = ['.pdf', '.png', '.jpg', '.jpeg']
 
+# class GetOTPView(APIView):
+#     def post(self, request):
+#         email = request.data.get('email')
+#         if email is None:
+#             return Response({'error': 'Invalid email.'}, status=status.HTTP_400_BAD_REQUEST)
+#         entry = EmailVerificationOtp(email=email).first()
+#         if entry is None:
+#             otp = ''.join(random.choice(string.digits) for i in range(6))
+#             entry = EmailVerificationOtp(email=email, otp=otp)
+#             entry.save()
+#         else:
+#             otp = entry.otp
+#         send_mail("OTP for registering.", f"Your OTP for registration is {otp}", settings.EMAIL_HOST_USER, [email,], fail_silently=False)
+#         return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
 class RegisterView(APIView):
     def post(self, request):
         data = {
@@ -42,11 +60,13 @@ class RegisterView(APIView):
             'name': request.data.get('name'),
             'password': request.data.get('password'),
             'phone_no': request.data.get('phone_no'),
+            # 'otp': request.data.get('otp'),
         }
         is_error = False
         roll_no_missing = False
         college_missing = False
         id_missing = False
+        # wrong_otp = False
         # invalid_file = False
         # oversize_file = False
         # save_id = False
@@ -79,6 +99,10 @@ class RegisterView(APIView):
             #     save_id = True
             data['id_proof'] = id_proof
             data['college'] = college
+        # otp_entry = EmailVerificationOtp.objects.filter(email=data['email']).first()
+        # if otp_entry is None or data['otp']!=otp_entry.otp:
+        #     is_error = True
+            # wrong_otp = True
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
@@ -90,6 +114,8 @@ class RegisterView(APIView):
                 errors['college'] = ['College name required']
             if id_missing:
                 errors['id_proof'] = ['ID proof required']
+            # if wrong_otp:
+            #     errors['otp'] = ['Wrong OTP.']
             # elif invalid_file:
             #     errors['id_proof'] = ['Invalid file type.']
             # elif oversize_file:
@@ -107,8 +133,25 @@ class RegisterView(APIView):
         #     if not serializer.is_valid():
         #         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        send_mail("Registration succesfull.", "Thankyou for registering for STAIL.", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
+        user = User.objects.filter(email=data['email']).first()
+        verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        while EmailVerification.objects.filter(slug=verification_slug).exists():
+            verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        verification_entry = EmailVerification(user=user, slug=verification_slug)
+        verification_entry.save()
+        verification_url = 'https://' if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
+        send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
+
+def VerifyEmail(request, slug):
+    vEntry = EmailVerification.objects.filter(slug=slug).first()
+    if vEntry is None:
+        raise Http404
+    user = vEntry.user
+    user.is_verified = True
+    user.save()
+    vEntry.delete()
+    return render(request, 'registrations/verified.html')
 
 class LoginView(APIView):
     def post(self, request):
@@ -117,6 +160,8 @@ class LoginView(APIView):
         user = authenticate(email=email, password=password)
         if user is None:
             return Response({'error': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
+        if not user.is_verified:
+            return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
         return Response({'key': token.key}, status=status.HTTP_200_OK)
 
@@ -144,7 +189,7 @@ class reset_request(APIView):
             message = {
                 'error': "User doesn't exist"}
             return Response(message, status=status.HTTP_400_BAD_REQUEST)
-        
+
 class reset_password(APIView):
     def post(self, request):
         data = request.data

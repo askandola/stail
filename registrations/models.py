@@ -14,14 +14,15 @@ class User(AbstractBaseUser):
     
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
-    phone_no = models.CharField(max_length=15)
+    phone_no = models.CharField(max_length=15, unique=True)
 
     is_thaparian = models.BooleanField(blank=True, default=False)
-    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
+    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None, unique=True)
 
     id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
-    
+
+    is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -50,3 +51,8 @@ class User(AbstractBaseUser):
     
     def __str__(self):
         return self.email
+
+class EmailVerification(models.Model):
+    # otp = models.CharField(max_length=10)
+    slug = models.CharField(max_length=50)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
