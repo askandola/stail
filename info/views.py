@@ -69,13 +69,22 @@ def streamEventRegstCSV(request, id):
     if request.method=='POST':
         event = Event.objects.filter(id=id).first()
         if event is None:
-            raise 404
-        users = event.users.all()
+            raise Http404
         pseudo_buffer = Echo()
         writer = csv.writer(pseudo_buffer)
-        headGen = (writer.writerow(['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
-        dataGen = (writer.writerow([user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in users)
-        gen = itertools.chain(headGen, dataGen)
+        if event.is_team_event:
+            teams = event.teams.all()
+            gen = (writer.writerow(['Team ID', 'Team Name', 'User ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
+            for team in teams:
+                leadergen = (writer.writerow([team.id, team.name, team.leader.id, team.leader.name, team.leader.email, team.leader.phone_no, team.leader.is_thaparian, team.leader.roll_no, team.leader.college, team.leader.id_proof]) for i in range(1))
+                members = team.members.all()
+                membersgen = (writer.writerow([team.id, team.name, user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in members)
+                gen = itertools.chain(gen, leadergen, membersgen)
+        else:
+            users = event.users.all()
+            headGen = (writer.writerow(['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
+            dataGen = (writer.writerow([user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in users)
+            gen = itertools.chain(headGen, dataGen)
         return StreamingHttpResponse(
             gen,
             content_type="text/csv",
