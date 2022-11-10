@@ -4,6 +4,8 @@ from django.core.mail import send_mail
 from django.core.files.storage import default_storage
 from django.conf import settings
 from django.http import Http404
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -140,7 +142,13 @@ class RegisterView(APIView):
         verification_entry = EmailVerification(user=user, slug=verification_slug)
         verification_entry.save()
         verification_url = 'https://' if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
-        send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
+        # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
+        html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
+        mesg = strip_tags(html_message) #incase rendering fails
+        subj = "Thank you for registering for Saturnalia'22"
+        from_email= settings.EMAIL_HOST_USER
+        # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
+        send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
 def VerifyEmail(request, slug):
@@ -175,13 +183,19 @@ class reset_request(APIView):
             otp = ''.join(random.choice(string.digits) for _ in range(7))
             user.otp = otp
             user.save()
-            send_mail(
-            'OTP for password reset',
-            f'The OTP to change your password is {otp}. Do not share this with anyone.',
-            settings.EMAIL_HOST_USER,
-            [email],
-            fail_silently=False,
-            )
+            # send_mail(
+            # 'OTP for password reset',
+            # f'The OTP to change your password is {otp}. Do not share this with anyone.',
+            # settings.EMAIL_HOST_USER,
+            # [email],
+            # fail_silently=False,
+            # )
+            html_message = render_to_string('registrations/otp.html', {'otp': otp})
+            message = strip_tags(html_message) #incase rendering fails
+            subj = "Password Reset OTP for Saturnalia'22"
+            from_email= settings.EMAIL_HOST_USER
+            # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
+            send_mail(subj, message, from_email, [data['email'],],html_message=html_message, fail_silently=False)
             message = {
                 'status': 'Success'}
             return Response(message, status=status.HTTP_200_OK)
