@@ -182,7 +182,7 @@ LOGGING = {
     },
 }
 
-CORS_ORIGIN_ALLOW_ALL = False
-CORS_ALLOWED_ORIGINS = (
-    'https://saturnaliatiet.com',
-)
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ALLOWED_ORIGINS = (
+#     'https://saturnaliatiet.com',
+# )

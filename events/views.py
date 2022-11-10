@@ -24,7 +24,8 @@ class EventsListView(APIView):
         if (visit==None):
             visit = Visit(hits=1)
         else:
-            visit.hits += 1
+            if visit.hits<9223372036854775807:
+                visit.hits += 1
         visit.save()
         if slug=='all':
             events_queryset = Event.objects.all()

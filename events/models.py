@@ -60,4 +60,4 @@ class Team(models.Model):
 
 class Visit(models.Model):
     event = models.OneToOneField(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)
-    hits = models.IntegerField(blank=True, default=0)
+    hits = models.BigIntegerField(blank=True, default=0)
