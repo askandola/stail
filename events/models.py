@@ -15,9 +15,9 @@ EVENT_TYPE_CHOICES = [
 class Event(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(null=True, blank=True, default=None)
-    
+
     image_required = models.BooleanField(default=False)
-    image = models.ImageField(upload_to=eventImageUploadPath, null=True, blank=True, default=None)
+    image = models.ImageField(upload_to=eventImageUploadPath, null=True, default=None)
 
     date = models.DateField(null=True, blank=True, default=None)
     time = models.TimeField(null=True, blank=True, default=None)
@@ -28,6 +28,8 @@ class Event(models.Model):
 
     deadline = models.DateTimeField(blank=True, null=True, default=None)
     is_active = models.BooleanField(blank=True, default=True)
+
+    fees_amount = models.IntegerField(default=0, blank=True)
 
     verification_required = models.BooleanField(blank=True, default=False)
 
