@@ -10,7 +10,8 @@ from rest_framework import status
 from .serializers import QuerySerializer, SponsorSerializer
 from .models import Sponsor, VerifyEndpoint
 from events.models import Event, Visit
-from registrations.models import User
+from registrations.models import User, EmailVerification
+from .models import Query
 
 import csv, itertools
 
@@ -37,25 +38,29 @@ class SponsorsView(APIView):
 @staff_member_required
 def DashboardView(request):
     events_queryset = Event.objects.all()
-    registrations = User.objects.filter(is_staff=False).count()
+    registrations = User.objects.filter(is_staff=False, is_verified=True).count()
+    pending_verifications = EmailVerification.objects.count()
     total_visits = Visit.objects.filter(event=None).first()
+    unread_queries = Query.objects.filter(is_read=False).count()
     if total_visits is None:
         total_visits = Visit()
         total_visits.save()
     events = []
     for event in events_queryset:
         data = {'id': event.id, 'name': event.name, 'registrations': event.teams.count() if event.is_team_event else event.users.count()}
-        visit = Visit.objects.filter(event=event).first()
-        if visit is not None:
-            data['visits'] = visit.hits
-        else:
-            data['visits'] = 0
+        # visit = Visit.objects.filter(event=event).first()
+        # if visit is not None:
+        #     data['visits'] = visit.hits
+        # else:
+        #     data['visits'] = 0
         events.append(data)
     context = {
         'events': events,
         'visits': total_visits.hits,
         'registrations': registrations,
         'eventsCount': len(events),
+        'pendingVerification': pending_verifications,
+        'unreadQueries': unread_queries,
     }
     return render(request, 'info/dashboard.html', context=context)
 

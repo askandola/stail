@@ -21,6 +21,7 @@ class Query(models.Model):
     email = models.EmailField()
     phone_no = models.CharField(max_length=15)
     description = models.TextField()
+    is_read = models.BooleanField(default=False)
 
 class VerifyEndpoint(models.Model):
     endpoint = models.CharField(max_length=150, unique=True)

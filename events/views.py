@@ -112,7 +112,7 @@ class EventView(APIView):
         rules = event.rules.order_by('number').all()
         for rule in rules:
             data['rules'].append(rule.content)
-        return Response(data, status=status.HTTP_302_FOUND)
+        return Response(data, status=status.HTTP_200_OK)
 
 class EventRegisterView(APIView):
     permission_classes = [IsAuthenticated, ]
