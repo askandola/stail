@@ -134,6 +134,7 @@ class EventRegisterView(APIView):
             return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
         event.users.add(user)
         event.save()
+        context = {'eventName': event.name}
         if event.verification_required:
             endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
             while VerifyEndpoint.objects.filter(endpoint=endpoint).exists():
@@ -144,12 +145,12 @@ class EventRegisterView(APIView):
             url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/media/' + filename
             verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user, url=url)
             verificationEntry.save()
-            subject = "Thankyou for registering"
-            context = {'url': url}
-            html_message = render_to_string('events/mail.html', context)
-            message = strip_tags(html_message)
-            from_email = settings.EMAIL_HOST_USER
-            send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+            context['qr_url'] = url
+        subject = f"Thank you for registering for {event.name}"
+        html_message = render_to_string('events/mail.html', context)
+        message = strip_tags(html_message)
+        from_email = settings.EMAIL_HOST_USER
+        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_200_OK)
 
 def getRandomKey():
@@ -185,6 +186,16 @@ class CreateTeam(APIView):
             key = getRandomKey()
         team = Team(leader=user, event=event, name=name, key=key)
         team.save()
+        context = {
+            'eventName': event.name,
+            'teamName': name,
+            'teamKey': key
+        }
+        subject = f"Thank you for registering for {event.name}"
+        html_message = render_to_string('events/mail.html', context)
+        message = strip_tags(html_message)
+        from_email = settings.EMAIL_HOST_USER
+        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
         return Response({'key': key, 'name': name}, status=status.HTTP_201_CREATED)
 
 class JoinTeam(APIView):
@@ -215,4 +226,12 @@ class JoinTeam(APIView):
             return Response({'error': 'Team Full'}, status=status.HTTP_400_BAD_REQUEST)
         team.members.add(user)
         team.save()
+        context = {
+            'eventName': event.name
+        }
+        subject = f"Thank you for registering for {event.name}"
+        html_message = render_to_string('events/mail.html', context)
+        message = strip_tags(html_message)
+        from_email = settings.EMAIL_HOST_USER
+        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_200_OK)

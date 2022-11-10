@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- <link rel="stylesheet" href="style.css"> -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,19 +12,19 @@
 
     <title>Saturnalia</title>
     <style>
-        body{
-            background: black;
+        #main{
+            background: #121212;
             font-family: 'Rubik Moonrocks', cursive;
             font-family: 'Ubuntu', sans-serif;
         }
         body::before{
-            background: url(stars2.jpg);
+            background: url('https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/stars2.jpg');
             content: "";
             opacity: 0.75;
         }
         
         .sat-logo{
-            background: url(space.png);
+            background: url('https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/space.png');
             display: flex;
             position: relative;
             
@@ -52,14 +50,16 @@
         }
         .event-text{
             color: white;
-            font-size: 2vw;
+            font-size: 30px;
             text-align: center;
             margin-top: 100px;
         }
         .event-text2{
             color: white;
             text-align: center;
-            font-size:x-large;
+            font-size:25px;
+            margin-top:80px;
+            margin-bottom:80px;
         }
         .note{
             color: white;
@@ -81,7 +81,7 @@
         }
         .team-cred2{
             color: white;
-            font-size: 40px;
+            font-size: 25px;
             margin: 50px;
             text-align: center;
         }
@@ -94,19 +94,15 @@
             position: relative;
             height: auto;
             padding: 50px 70px;
-            background: #111;
+            background: #121212;
           }
           
           footer .container {
             display: flex;
-            justify-content: space-between;
             margin: 10px 0;
             justify-content: center;
           }
-          
-          footer .container .sec {
-            padding-right: 30px;
-          }
+
           
           footer .container .sec.Aboutus {
             width: 30%;
@@ -114,7 +110,7 @@
           }
           .sec h2{
             text-align: center;
-            font-size: 40px;
+            font-size: 30px;
           }
           footer .container .sec.Aboutus h2 {
             position: relative;
@@ -299,11 +295,16 @@
           
         .fa {
           padding: 20px;
-          font-size: 30px;
-          width: 50px;
+          width: 30px;
+          height: 30px;
           text-align: center;
           text-decoration: none;
           margin: 5px 2px;
+        }
+
+        .fa img {
+          height: 30px;
+          width: 30px;
         }
         
         .fa:hover {
@@ -339,41 +340,51 @@
           background: #125688;
           color: white;
         }
+
+        .footer-email {
+          color: #ffffff;
+        }
+
+        @media only screen and (max-width:700px) {
+          footer .container .sec {
+            display: flex;
+            flex-direction: column;
+            padding-right: 0px;
+          }
+          .sci {
+            margin: auto;
+          }
+          .fa {
+            padding: 15px;
+            width: 20px;
+            height: 20px;
+          }
+          .fa img {
+            width: 20px;
+            height: 20px;
+          }
+      }
     </style>
 </head>
 <body>
-    <div class="sat-logo logo-height"><img src="white_saturnalia.png" alt="image"></div>
-    <div class="event-text2"><h3> Your otp to register for Saturnalia is {{otp}}</h3></div>
-    <!-- <div class="box"><img src="qrcode.png" alt="image"></div> -->
-    <!-- <div class="team-cred">
-        Team ""<B>team name</B>"" created successfully. <br>
-    </div> -->
-    <div class="team-cred2">
-        If you didn't request for a sign up, you can ignore this message.
-    </div>
-    <!-- <div class="note">
-        <hr>
-        You have to take this email to event venue for validation purpose. 
-     </div> -->
+  <div id="main">
+    <div class="sat-logo logo-height"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/saturnalia.png" alt="image"></div>
+    <div class="event-text2"><h3> Your otp to reset password is {{otp}}</h3></div>
      <hr>
      <footer id="dk-footer">
         <div class="container">
-          
-  
-  
           <div class="sec">
-            <h3>For any queries, feel free to reach us at : <a href="mailto: saturnalia@thapar.edu">saturnalia@thapar.edu</a></h3>
-            <h2>Follow Us:</h2>
-  
+            <h3>For any queries, feel free to reach us at : <a class="footer-email" href="mailto: saturnalia@thapar.edu">saturnalia@thapar.edu</a></h3>
+            {% comment %} <h2>Follow Us</h2> {% endcomment %}
             <ul class="sci">
-                <a href="https://www.facebook.com/saturnalia.thapar/?ti=as" class="fa fa-facebook"></a>
-                <a href="https://www.linkedin.com/company/saturnalia-annual-techno-cultural-festival/" class="fa fa-linkedin"></a>
-                <a href="https://youtube.com/channel/UCZv84Q5t_ESkpSnNlt5H0lg" class="fa fa-youtube"></a>
-                <a href="https://instagram.com/saturnalia.thapar?igshid=YmMyMTA2M2Y=" class="fa fa-instagram"></a>
+              <a href="https://www.facebook.com/saturnalia.thapar/?ti=as" class="fa fa-facebook"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/facebook-brands.png"></a>
+              <a href="https://www.linkedin.com/company/saturnalia-annual-techno-cultural-festival/" class="fa fa-linkedin"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/linkedin-brands.png"></a>
+              <a href="https://youtube.com/channel/UCZv84Q5t_ESkpSnNlt5H0lg" class="fa fa-youtube"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/youtube-brands.png"></a>
+              <a href="https://instagram.com/saturnalia.thapar?igshid=YmMyMTA2M2Y=" class="fa fa-instagram"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/instagram-brands.png"></a>
             </ul>
           </div>
         </div>
       </footer>
-
+    </div>
 </body>
 </html>
