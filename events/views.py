@@ -41,11 +41,12 @@ class EventsListView(APIView):
             data['id'] = event.id
             data['name'] = event.name
             data['description'] = event.description
-            if event.image_required:
-                image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
-                data['image'] = image_url
-            else:
-                data['image'] = None
+            # if event.image_required:
+            #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
+            #     data['image'] = image_url
+            # else:
+            #     data['image'] = None
+            data['image'] = event.image_url
             data['date'] = event.date
             data['time'] = event.time
             data['venue'] = event.venue
@@ -86,11 +87,12 @@ class EventView(APIView):
         data['id'] = event.id
         data['name'] = event.name
         data['description'] = event.description
-        if event.image_required==True:
-            image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
-            data['image'] = image_url
-        else:
-            data['image'] = None
+        # if event.image_required==True:
+        #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
+        #     data['image'] = image_url
+        # else:
+        #     data['image'] = None
+        data['image'] = event.image_url
         data['date'] = event.date
         data['time'] = event.time
         data['venue'] = event.venue

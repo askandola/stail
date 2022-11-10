@@ -16,8 +16,9 @@ class Event(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(null=True, blank=True, default=None)
 
-    image_required = models.BooleanField(default=False)
-    image = models.ImageField(upload_to=eventImageUploadPath, null=True, default=None)
+    # image_required = models.BooleanField(default=False)
+    # image = models.ImageField(upload_to=eventImageUploadPath, null=True, default=None)
+    image_url = models.URLField(max_length=5000, null=True, default=None)
 
     date = models.DateField(null=True, blank=True, default=None)
     time = models.TimeField(null=True, blank=True, default=None)
