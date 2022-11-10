@@ -25,9 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['stail.ccstiet.com', '127.0.0.1']
+ALLOWED_HOSTS = ['api.saturnaliatiet.com', '127.0.0.1']
 
 # Application definition
 
