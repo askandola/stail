@@ -38,10 +38,12 @@ class EventsListView(APIView):
         list = []
         for event in events_queryset:
             data = {}
+            data['id'] = event.id
             data['name'] = event.name
             data['description'] = event.description
             if event.image_required:
-                data['image'] = event.image
+                image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
+                data['image'] = image_url
             else:
                 data['image'] = None
             data['date'] = event.date
@@ -51,6 +53,7 @@ class EventsListView(APIView):
             data['intra_thapar'] = event.intra_thapar
             data['deadline'] = event.deadline
             data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+            data['fees_amount'] = event.fees_amount
             data['is_team_event'] = event.is_team_event
             data['min_team_size'] = event.min_team_size
             data['max_team_size'] = event.max_team_size
@@ -80,10 +83,12 @@ class EventView(APIView):
         visit.save()
         user = request.user
         data = {}
+        data['id'] = event.id
         data['name'] = event.name
         data['description'] = event.description
-        if event.image_required:
-            data['image'] = event.image
+        if event.image_required==True:
+            image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
+            data['image'] = image_url
         else:
             data['image'] = None
         data['date'] = event.date
@@ -93,6 +98,7 @@ class EventView(APIView):
         data['intra_thapar'] = event.intra_thapar
         data['deadline'] = event.deadline
         data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+        data['fees_amount'] = event.fees_amount
         data['is_team_event'] = event.is_team_event
         data['min_team_size'] = event.min_team_size
         data['max_team_size'] = event.max_team_size
