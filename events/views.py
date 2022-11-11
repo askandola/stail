@@ -11,7 +11,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from .serializers import EventSerializer
-from .models import Event, Visit, Team
+from .models import Event, Visit, Team, EventUserTable
 from info.models import VerifyEndpoint
 
 import random, string, os, qrcode, time
@@ -62,7 +62,7 @@ class EventsListView(APIView):
             data['is_registered'] = False
             data['registration_allowed'] = True
             if not user.is_anonymous:
-                data['is_registered'] = user.event_set.filter(id=event.id).exists()
+                data['is_registered'] = user.event_registrations.filter(event=event).exists()
                 if event.intra_thapar and not user.is_thaparian:
                     data['registration_allowed'] = False
             data['rules'] = []
@@ -108,7 +108,7 @@ class EventView(APIView):
         data['is_registered'] = False
         data['registration_allowed'] = True
         if not user.is_anonymous:
-            data['is_registered'] = user.event_set.filter(id=id).exists()
+            data['is_registered'] = user.event_registrations.filter(event=event).exists()
             if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
         data['rules'] = []
@@ -131,12 +131,12 @@ class EventRegisterView(APIView):
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
-        if user.event_set.filter(id=event_id).exists():
+        if user.event_registrations.filter(event=event).exists():
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
         if not user.is_verified:
             return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
-        event.users.add(user)
-        event.save()
+        regstrEntry = EventUserTable(user=user, event=event)
+        regstrEntry.save()
         context = {'eventName': event.name}
         if event.verification_required:
             endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))

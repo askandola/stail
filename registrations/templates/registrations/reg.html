@@ -10,16 +10,14 @@
 
     <title>Saturnalia</title>
     <style>
-      #main{
+    #main{
         background: #121212;
-        font-family: 'Inter', sans-serif;
-    font-family: 'Kanit', sans-serif;
+        font-family: 'Kanit', 'Inter', sans-serif;
     }
     .sat-logo{
         background: url('https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/space.png');
         display: flex;
         position: relative;
-        
     }
     .sat-logo .logo-height{
         height: 200px;
@@ -33,266 +31,42 @@
         margin-right: auto;
         margin-left: auto;
     }
-    .box img{
-        height: 25vw;
-        display: block;
-        margin-right: auto;
-        margin-left: auto;
-        margin-top: 50px;
-    }
     .event-text{
         color: white;
-        font-size: 15px;
         text-align: center;
         margin-top: 100px;
-    
+        font-size: 22px;
     }
     .event-text2{
         color: white;
         text-align: center;
-        font-size:25px;
+        font-size: 20px;
     }
     .event-text2 a {
       color: #ffffff;
     }
-    .note{
-        color: white;
-        position:relative;
-        margin-top: 40px;
-        border: 3px solid green ;
-        border-radius: 5px;
-        text-align: center;
-        font-size: 30px;
-        padding: 15px;
-    }
-    .team-cred{
-        margin: 20px;
-        font-size: 40px;
-        color: white;
-        text-align: center;
-    }
-    .team-cred2{
-        color: white;
-        font-size: 40px;
-        margin: 50px;
-        text-align: center;
+    footer {
+      padding: 50px 0px;
     }
     
-    footer {
-        position: relative;
-        height: auto;
-        padding: 50px 70px;
-        background: #121212;
-      }
-      
-      footer .container {
-        display: flex;
-        margin: 10px 0;
-        justify-content: center;
-      }
-      
-      
-      
-      footer .container .sec.Aboutus {
-        width: 30%;
-        padding-right: 30px;
-      }
-      .sec h2{
-        text-align: center;
-        font-size: 40px;
-      }
-      footer .container .sec.Aboutus h2 {
-        position: relative;
-      }
-      
-      footer .container .sec.Aboutus h2:before {
-        position: absolute;
-        bottom: -5px;
-        left: 0;
-        width: 190px;
-        height: 2px;
-        background: #fff;
-      }
-      
-      footer p {
-        color: #999;
-      }
-      
-      .sci {
-        display: flex;
-        padding: 0;
-      }
-      
-      .sci li {
-        list-style: none;
-      }
-      
-      .sci li a {
-        display: inline-block;
-        width: 40px;
-        height: 40px;
-        background: #222;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        margin-right: 10px;
-        text-decoration: none;
-        border-radius: 4px;
-      }
-      
-      .sci li a:hover {
-        background: #db198a;
-      }
-      
-      .sci li a .fa {
-        color: #fff;
-        font-size: 20px;
-      }
-      
-      .QuickLinks {
-        position: relative;
-        width: 25%;
-      }
-      
-      .QuickLinks h2 {
-        margin-bottom: 10px;
-      }
-      
-      .QuickLinks u1 li {
-        list-style: none;
-      }
-      
-      .QuickLinks u1 li a {
-        color: #999;
-        text-decoration: none;
-        margin-bottom: 10px;
-        display: inline-block;
-      }
-      
-      .QuickLinks u1 li a:hover {
-        color: #fff;
-        padding-left: 5px;
-        transition: all 0.5s ease;
-      }
-      
-      footer .container .sec h2 {
-        color: #fff;
-        margin-bottom: 15px;
-      }
-      
-      .copyrightText {
-        width: 100%;
-        padding-top: 40px;
-        text-align: center;
-      }
-      
-      .copyrightText p {
-        margin: 0;
-      }
-      
-      .form-control {
-        color: #fff !important
-      }
-      
-      .footer-widget p {
-        margin-bottom: 27px;
-        color: white;
-      }
-      
-      p {
-        font-family: 'Nunito', sans-serif;
-        color: #8f8f8f;
-        font-size: 16px;
-        line-height: 28px;
-      }
-      
-      .footer-detail {
-        font-family: 'Nunito', sans-serif;
-        color: #8f8f8f;
-        font-size: 16px;
-        line-height: 28px;
-        margin-top: 8px;
-      }
-      
-      .animate-border {
-        position: relative;
-        display: block;
-        width: 222px;
-        height: 3.5px;
-        margin-top: -13px;
-        background: #007bff;
-      }
-      
-      .animate-border:after {
-        position: absolute;
-        content: "";
-        width: 100px;
-        height: 3px;
-        left: 0;
-        bottom: 0;
-        border-left: 10px solid #fff;
-        border-right: 10px solid #fff;
-        -webkit-animation: animborder 2s linear infinite;
-        animation: animborder 2s linear infinite;
-      }
-      
-      @-webkit-keyframes animborder {
-        0% {
-            -webkit-transform: translateX(0px);
-            transform: translateX(0px);
-        }
-        100% {
-            -webkit-transform: translateX(113px);
-            transform: translateX(113px);
-        }
-      }
-      
-      @keyframes animborder {
-        0% {
-            -webkit-transform: translateX(0px);
-            transform: translateX(0px);
-        }
-        100% {
-            -webkit-transform: translateX(113px);
-            transform: translateX(113px);
-        }
-      }
-      
-      .animate-border.border-white:after {
-        border-color: #fff;
-      }
-      
-      .animate-border.border-yellow:after {
-        border-color: #F5B02E;
-      }
-      
-      .animate-border.border-orange:after {
-        border-right-color: #007bff;
-        border-left-color: #007bff;
-      }
-      
-      .animate-border.border-ash:after {
-        border-right-color: #EEF0EF;
-        border-left-color: #EEF0EF;
-      }
-      
-      .animate-border.border-offwhite:after {
-        border-right-color: #F7F9F8;
-        border-left-color: #F7F9F8;
-      }
-      
-    .fa {
-      padding: 20px;
-      height: 30px;
-      width: 30px;
-      text-align: center;
-      text-decoration: none;
-      margin: 5px 2px;
+    .sci {
+      display: flex;
+      padding: 0;
+      margin: auto;
+      width: fit-content;
     }
 
+  .fa {
+    padding: 15px;
+    height: 20px;
+    width: 20px;
+    text-align: center;
+    text-decoration: none;
+    margin: 5px 2px;
+  }
     .fa img {
-      height: 30px;
-      width: 30px;
+      height: 20px;
+      width: 20px;
     }
     
     .fa:hover {
@@ -328,51 +102,23 @@
       background: #125688;
       color: white;
     }
-    @media only screen and (max-width:700px) {
-        footer .container .sec {
-          display: flex;
-          flex-direction: column;
-          padding-right: 0px;
-        }
-        .sci {
-          margin: auto;
-        }
-        .fa {
-          padding: 15px;
-          width: 20px;
-          height: 20px;
-        }
-        .fa img {
-          width: 20px;
-          height: 20px;
-        }
-    }
     </style>
 </head>
 <body>
   <div id="main">
      <div class="sat-logo logo-height"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/saturnalia.png" alt="image"></div> 
-    <div class="event-text"><h1> CONGRATULATIONS!!!</h1></div>
-    <div class="event-text2"><h3> You have successfully registered for "Saturnalia"</h3></div>
-    <div class="event-text2"><h3> To verify your email, <a href="{{verification_url}}">click here.</a></h3></div>
+    <div class="event-text">CONGRATULATIONS!!!</div>
+    <div class="event-text2">You have successfully registered for "Saturnalia"</div>
+    <div class="event-text2">To verify your email, <a href="{{verification_url}}">click here.</a></div>
     <div style="margin-bottom:80px;"></div>
     <hr> 
     <footer id="dk-footer">
-        <div class="container">
-          
-  
-  
-          <div class="sec">
-            {% comment %} <h2>Stay Updated</h2> {% endcomment %}
-  
             <ul class="sci">
                 <a href="https://www.facebook.com/saturnalia.thapar/?ti=as" class="fa fa-facebook"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/facebook-brands.png"></a>
                 <a href="https://www.linkedin.com/company/saturnalia-annual-techno-cultural-festival/" class="fa fa-linkedin"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/linkedin-brands.png"></a>
                 <a href="https://youtube.com/channel/UCZv84Q5t_ESkpSnNlt5H0lg" class="fa fa-youtube"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/youtube-brands.png"></a>
                 <a href="https://instagram.com/saturnalia.thapar?igshid=YmMyMTA2M2Y=" class="fa fa-instagram"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/instagram-brands.png"></a>
             </ul>
-          </div>
-        </div>
       </footer>
     </div>
 </body>

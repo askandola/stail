@@ -88,7 +88,7 @@ def streamEventRegstCSV(request, id):
         else:
             users = event.users.all()
             headGen = (writer.writerow(['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
-            dataGen = (writer.writerow([user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in users)
+            dataGen = (writer.writerow([user.user.id, user.user.name, user.user.email, user.user.phone_no, user.user.is_thaparian, user.user.roll_no, user.user.college, user.user.id_proof]) for user in users)
             gen = itertools.chain(headGen, dataGen)
         return StreamingHttpResponse(
             gen,

@@ -40,8 +40,6 @@ class Event(models.Model):
 
     order = models.SmallIntegerField(blank=True, null=True, default=None)
 
-    users = models.ManyToManyField(User, blank=True)
-
     def __str__(self):
         return self.name
 
@@ -59,6 +57,10 @@ class Team(models.Model):
 
     def __str__(self):
         return self.name+'_'+self.event.name
+
+class EventUserTable(models.Model):
+    event = models.ForeignKey(Event, related_name='users', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, related_name='event_registrations', on_delete=models.CASCADE)
 
 class Visit(models.Model):
     event = models.OneToOneField(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)

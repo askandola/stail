@@ -142,12 +142,10 @@ class RegisterView(APIView):
         verification_entry = EmailVerification(user=user, slug=verification_slug)
         verification_entry.save()
         verification_url = 'https://' if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
-        # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
         html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
         mesg = strip_tags(html_message) #incase rendering fails
         subj = "Thank you for registering for Saturnalia'22"
         from_email= settings.EMAIL_HOST_USER
-        # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
         send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
