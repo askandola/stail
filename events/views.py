@@ -28,11 +28,11 @@ class EventsListView(APIView):
                 visit.hits += 1
         visit.save()
         if slug=='all':
-            events_queryset = Event.objects.all()
+            events_queryset = Event.objects.all().order_by('order', 'date', 'time')
         elif slug=='competitions':
-            events_queryset = Event.objects.filter(type='CP')
+            events_queryset = Event.objects.filter(type='CP').order_by('order', 'date', 'time')
         elif slug=='events':
-            events_queryset = Event.objects.filter(type='EV')
+            events_queryset = Event.objects.filter(type='EV').order_by('order', 'date', 'time')
         else:
             raise Http404
         user = request.user

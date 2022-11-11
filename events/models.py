@@ -38,6 +38,8 @@ class Event(models.Model):
     min_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
     max_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
 
+    order = models.SmallIntegerField(blank=True, null=True, default=None)
+
     users = models.ManyToManyField(User, blank=True)
 
     def __str__(self):
