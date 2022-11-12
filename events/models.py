@@ -45,8 +45,8 @@ class Event(models.Model):
 
     type = models.CharField(max_length=2, choices=EVENT_TYPE_CHOICES, default='EV')
     intra_thapar = models.BooleanField(blank=True, default=False)
-    category = models.CharField(max_length=2, choices=EVENT_CATEGORY_CHOICES, null=True, default=None)
-    domain = models.CharField(max_length=3, choices=EVENT_DOMAIN_CHOICES, null=True, default=None)
+    category = models.CharField(max_length=2, choices=EVENT_CATEGORY_CHOICES, blank=True, null=True, default=None)
+    domain = models.CharField(max_length=3, choices=EVENT_DOMAIN_CHOICES, blank=True, null=True, default=None)
 
     deadline = models.DateTimeField(blank=True, null=True, default=None)
     is_active = models.BooleanField(blank=True, default=True)
