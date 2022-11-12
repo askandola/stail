@@ -12,6 +12,25 @@ EVENT_TYPE_CHOICES = [
     ('EV', 'Event')
 ]
 
+EVENT_CATEGORY_CHOICES = [
+    ('TL', 'Technical'),
+    ('CL', 'Cultural')
+]
+
+EVENT_DOMAIN_CHOICES = [
+    ('MS', 'Music'),
+    ('DC', 'Dance'),
+    ('FS', 'Fashion'),
+    ('AT', 'Acting'),
+    ('PT', 'Poetry'),
+    ('CM', 'Comedy'),
+    ('TL', 'Talent'),
+    ('AR', 'Art'),
+    ('EL', 'Electronics'),
+    ('CP', 'Computers'),
+    ('RB', 'Robotics')
+]
+
 class Event(models.Model):
     name = models.CharField(max_length=150)
     description = models.TextField(null=True, blank=True, default=None)
@@ -26,6 +45,8 @@ class Event(models.Model):
 
     type = models.CharField(max_length=2, choices=EVENT_TYPE_CHOICES, default='EV')
     intra_thapar = models.BooleanField(blank=True, default=False)
+    category = models.CharField(max_length=2, choices=EVENT_CATEGORY_CHOICES, null=True, default=None)
+    domain = models.CharField(max_length=3, choices=EVENT_DOMAIN_CHOICES, null=True, default=None)
 
     deadline = models.DateTimeField(blank=True, null=True, default=None)
     is_active = models.BooleanField(blank=True, default=True)
