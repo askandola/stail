@@ -32,21 +32,27 @@ class EventsListView(APIView):
             events_queryset_after_date = Event.objects.filter(date__gt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_date = Event.objects.filter(date__lt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_time = Event.objects.filter(date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_null_date = Event.objects.filter(date=None).order_by('order')
+            events_queryset_today_null_time = Event.objects.filter(date=datetime.date.today(), time=None).order_by('order')
         elif slug=='competitions':
             events_queryset_after_time = Event.objects.filter(type='CP', date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
             events_queryset_after_date = Event.objects.filter(type='CP', date__gt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_date = Event.objects.filter(type='CP', date__lt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_time = Event.objects.filter(type='CP', date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_null_date = Event.objects.filter(type='CP', date=None).order_by('order')
+            events_queryset_today_null_time = Event.objects.filter(type='CP', date=datetime.date.today(), time=None).order_by('order')
         elif slug=='events':
             events_queryset_after_time = Event.objects.filter(type='EV', date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
             events_queryset_after_date = Event.objects.filter(type='EV', date__gt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_date = Event.objects.filter(type='EV', date__lt=datetime.date.today()).order_by('order', 'date', 'time')
             events_queryset_before_time = Event.objects.filter(type='EV', date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_null_date = Event.objects.filter(type='EV', date=None).order_by('order')
+            events_queryset_today_null_time = Event.objects.filter(type='EV', date=datetime.date.today(), time=None).order_by('order')
         else:
             raise Http404
         user = request.user
         list = []
-        for events_queryset in [events_queryset_after_time, events_queryset_after_date, events_queryset_before_date, events_queryset_before_time]:
+        for events_queryset in [events_queryset_today_null_time, events_queryset_after_time, events_queryset_after_date, events_queryset_before_date, events_queryset_before_time, events_queryset_null_date]:
             for event in events_queryset:
                 data = {}
                 data['id'] = event.id
