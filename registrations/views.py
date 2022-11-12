@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
 from django.core.files.storage import default_storage
@@ -73,7 +73,7 @@ class RegisterView(APIView):
         # oversize_file = False
         # save_id = False
         is_thaparian = request.data.get('is_thaparian')
-        if is_thaparian=="true":
+        if is_thaparian=="true" or is_thaparian==True:
             roll_no = request.data.get('roll_no')
             if roll_no is None:
                 roll_no_missing = True
@@ -157,7 +157,7 @@ def VerifyEmail(request, slug):
     user.is_verified = True
     user.save()
     vEntry.delete()
-    return render(request, 'registrations/verified.html')
+    return redirect('https://saturnaliatiet.com/verification/', permanent=False)
 
 class LoginView(APIView):
     def post(self, request):
