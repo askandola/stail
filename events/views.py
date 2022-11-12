@@ -14,7 +14,7 @@ from .serializers import EventSerializer
 from .models import Event, Visit, Team, EventUserTable
 from info.models import VerifyEndpoint
 
-import random, string, os, qrcode, time
+import random, string, os, qrcode, time, datetime
 
 # Create your views here.
 
@@ -28,48 +28,58 @@ class EventsListView(APIView):
                 visit.hits += 1
         visit.save()
         if slug=='all':
-            events_queryset = Event.objects.all().order_by('order', 'date', 'time')
+            events_queryset_after_time = Event.objects.filter(date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_after_date = Event.objects.filter(date__gt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_date = Event.objects.filter(date__lt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_time = Event.objects.filter(date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
         elif slug=='competitions':
-            events_queryset = Event.objects.filter(type='CP').order_by('order', 'date', 'time')
+            events_queryset_after_time = Event.objects.filter(type='CP', date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_after_date = Event.objects.filter(type='CP', date__gt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_date = Event.objects.filter(type='CP', date__lt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_time = Event.objects.filter(type='CP', date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
         elif slug=='events':
-            events_queryset = Event.objects.filter(type='EV').order_by('order', 'date', 'time')
+            events_queryset_after_time = Event.objects.filter(type='EV', date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
+            events_queryset_after_date = Event.objects.filter(type='EV', date__gt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_date = Event.objects.filter(type='EV', date__lt=datetime.date.today()).order_by('order', 'date', 'time')
+            events_queryset_before_time = Event.objects.filter(type='EV', date=datetime.date.today(), time__lt=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
         else:
             raise Http404
         user = request.user
         list = []
-        for event in events_queryset:
-            data = {}
-            data['id'] = event.id
-            data['name'] = event.name
-            data['description'] = event.description
-            # if event.image_required:
-            #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
-            #     data['image'] = image_url
-            # else:
-            #     data['image'] = None
-            data['image'] = event.image_url
-            data['date'] = event.date
-            data['time'] = event.time
-            data['venue'] = event.venue
-            data['type'] = event.type
-            data['intra_thapar'] = event.intra_thapar
-            data['deadline'] = event.deadline
-            data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
-            data['fees_amount'] = event.fees_amount
-            data['is_team_event'] = event.is_team_event
-            data['min_team_size'] = event.min_team_size
-            data['max_team_size'] = event.max_team_size
-            data['is_registered'] = False
-            data['registration_allowed'] = True
-            if not user.is_anonymous:
-                data['is_registered'] = user.event_registrations.filter(event=event).exists()
-                if event.intra_thapar and not user.is_thaparian:
-                    data['registration_allowed'] = False
-            data['rules'] = []
-            rules = event.rules.order_by('number').all()
-            for rule in rules:
-                data['rules'].append(rule.content)
-            list.append(data)
+        for events_queryset in [events_queryset_after_time, events_queryset_after_date, events_queryset_before_date, events_queryset_before_time]:
+            for event in events_queryset:
+                data = {}
+                data['id'] = event.id
+                data['name'] = event.name
+                data['description'] = event.description
+                # if event.image_required:
+                #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
+                #     data['image'] = image_url
+                # else:
+                #     data['image'] = None
+                data['image'] = event.image_url
+                data['date'] = event.date
+                data['time'] = event.time
+                data['venue'] = event.venue
+                data['type'] = event.type
+                data['intra_thapar'] = event.intra_thapar
+                data['deadline'] = event.deadline
+                data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+                data['fees_amount'] = event.fees_amount
+                data['is_team_event'] = event.is_team_event
+                data['min_team_size'] = event.min_team_size
+                data['max_team_size'] = event.max_team_size
+                data['is_registered'] = False
+                data['registration_allowed'] = True
+                if not user.is_anonymous:
+                    data['is_registered'] = user.event_registrations.filter(event=event).exists()
+                    if event.intra_thapar and not user.is_thaparian:
+                        data['registration_allowed'] = False
+                data['rules'] = []
+                rules = event.rules.order_by('number').all()
+                for rule in rules:
+                    data['rules'].append(rule.content)
+                list.append(data)
         return Response(list, status=status.HTTP_200_OK)
 
 class EventView(APIView):
