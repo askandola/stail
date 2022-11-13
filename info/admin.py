@@ -23,6 +23,7 @@ class QueryAdmin(ImportExportModelAdmin):
     list_display = ['id', 'name', 'email', 'phone_no']
     list_display_links = ['id', 'name']
     list_per_page = 50
+    search_fields = ['email', 'name', 'phone_no']
 
 class SponsorAdmin(ImportExportModelAdmin):
     resource_class = SponsorResource
@@ -33,6 +34,7 @@ class VerifyAdmin(ImportExportModelAdmin):
     resource_class = VerifyResource
     list_display = ['id', 'endpoint', 'user', 'event']
     list_display_links = ['id', 'endpoint']
+    search_fields = ['user__email', 'event__name']
 
 admin.site.register(Query, QueryAdmin)
 admin.site.register(Sponsor, SponsorAdmin)
