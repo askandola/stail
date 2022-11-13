@@ -69,6 +69,9 @@ class Rule(models.Model):
     number = models.SmallIntegerField()
     content = models.CharField(max_length=1000)
 
+    def __str__(self):
+        return self.number+'_'+self.event.name
+
 class Team(models.Model):
     name = models.CharField(max_length=100)
     key = models.CharField(max_length=50, unique=True)
@@ -82,6 +85,9 @@ class Team(models.Model):
 class EventUserTable(models.Model):
     event = models.ForeignKey(Event, related_name='users', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='event_registrations', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.email+'_'+self.event.name
 
 class Visit(models.Model):
     event = models.OneToOneField(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)

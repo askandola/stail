@@ -23,8 +23,14 @@ class Query(models.Model):
     description = models.TextField()
     is_read = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.email
+
 class VerifyEndpoint(models.Model):
     endpoint = models.CharField(max_length=150, unique=True)
     url = models.URLField(max_length=300, null=True, blank=True, default=None)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.email+'_'+self.event.name
