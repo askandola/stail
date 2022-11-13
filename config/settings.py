@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['api.saturnaliatiet.com', '127.0.0.1', 'localhost']
 
@@ -183,3 +183,17 @@ LOGGING = {
 }
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+#         'LOCATION': 'redis://127.0.0.1:6379',
+#     }
+# }
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': 'redis://redis:6379',
+    }
+}

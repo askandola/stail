@@ -34,3 +34,6 @@ class VerifyEndpoint(models.Model):
 
     def __str__(self):
         return self.user.email+'_'+self.event.name
+
+class Visit(models.Model):
+    hits = models.PositiveBigIntegerField(default=0)

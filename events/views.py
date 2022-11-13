@@ -4,14 +4,14 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils import timezone
 from django.http import Http404
+from django.core.cache import cache
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
-from .serializers import EventSerializer
-from .models import Event, Visit, Team, EventUserTable
+from .models import Event, Team, EventUserTable
 from info.models import VerifyEndpoint
 
 import random, string, os, qrcode, time, datetime
@@ -20,13 +20,9 @@ import random, string, os, qrcode, time, datetime
 
 class EventsListView(APIView):
     def get(self, request, slug):
-        visit = Visit.objects.filter(event=None).first()
-        if (visit==None):
-            visit = Visit(hits=1)
-        else:
-            if visit.hits<9223372036854775807:
-                visit.hits += 1
-        visit.save()
+        visit = cache.get('visits', 0)
+        visit += 1
+        cache.set('visits', visit)
         if slug=='all':
             # events_queryset_after_time = Event.objects.filter(date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
             # events_queryset_after_date = Event.objects.filter(date__gt=datetime.date.today()).order_by('order', 'date', 'time')
@@ -61,11 +57,6 @@ class EventsListView(APIView):
             data['id'] = event.id
             data['name'] = event.name
             data['description'] = event.description
-            # if event.image_required:
-            #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
-            #     data['image'] = image_url
-            # else:
-            #     data['image'] = None
             data['image'] = event.image_url
             data['date'] = event.date
             data['time'] = event.time
@@ -87,7 +78,7 @@ class EventsListView(APIView):
                 if event.intra_thapar and not user.is_thaparian:
                     data['registration_allowed'] = False
             data['rules'] = []
-            rules = event.rules.order_by('number').all()
+            rules = event.rules.all().order_by('number')
             for rule in rules:
                 data['rules'].append(rule.content)
             list.append(data)
@@ -98,22 +89,11 @@ class EventView(APIView):
         event = Event.objects.filter(id=id).first()
         if event is None or not event.is_active:
             return Response({'error': 'Event not found.'}, status=status.HTTP_404_NOT_FOUND)
-        visit = Visit.objects.filter(event=event).first()
-        if visit is None:
-            visit = Visit(event=event, hits=1)
-        else:
-            visit.hits += 1
-        visit.save()
         user = request.user
         data = {}
         data['id'] = event.id
         data['name'] = event.name
         data['description'] = event.description
-        # if event.image_required==True:
-        #     image_url = "https://" if request.is_secure() else 'http://' + request.META['HTTP_HOST'] + '/media/' + str(event.image)
-        #     data['image'] = image_url
-        # else:
-        #     data['image'] = None
         data['image'] = event.image_url
         data['date'] = event.date
         data['time'] = event.time

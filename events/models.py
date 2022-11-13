@@ -64,6 +64,9 @@ class Event(models.Model):
     def __str__(self):
         return self.name
 
+    def save(self, *args, **kwargs):
+        super(Event, self).save(*args, **kwargs)
+
 class Rule(models.Model):
     event = models.ForeignKey(Event, related_name='rules', on_delete=models.CASCADE)
     number = models.SmallIntegerField()
@@ -88,7 +91,3 @@ class EventUserTable(models.Model):
 
     def __str__(self):
         return self.user.email+'_'+self.event.name
-
-class Visit(models.Model):
-    event = models.OneToOneField(Event, null=True, blank=True, default=None, on_delete=models.CASCADE)
-    hits = models.BigIntegerField(blank=True, default=0)

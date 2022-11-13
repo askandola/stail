@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import StreamingHttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
+from django.core.cache import cache
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,9 +10,9 @@ from rest_framework import status
 
 from .serializers import QuerySerializer, SponsorSerializer
 from .models import Sponsor, VerifyEndpoint
-from events.models import Event, Visit
+from events.models import Event
 from registrations.models import User, EmailVerification
-from .models import Query
+from .models import Query, Visit
 
 import csv, itertools
 
@@ -35,12 +36,23 @@ class SponsorsView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+def update_db_from_cache():
+    db_entry = Visit.objects.first()
+    if db_entry==None:
+        db_entry = Visit()
+    cache_entry = cache.get('visits', 0)
+    db_entry.hits += cache_entry
+    cache.set('visits', 0)
+    db_entry.save()
+
+
 @staff_member_required
 def DashboardView(request):
+    update_db_from_cache()
     events_queryset = Event.objects.all()
     registrations = User.objects.filter(is_staff=False, is_verified=True).count()
     pending_verifications = EmailVerification.objects.count()
-    total_visits = Visit.objects.filter(event=None).first()
+    total_visits = Visit.objects.first()
     unread_queries = Query.objects.filter(is_read=False).count()
     if total_visits is None:
         total_visits = Visit()
@@ -48,11 +60,6 @@ def DashboardView(request):
     events = []
     for event in events_queryset:
         data = {'id': event.id, 'name': event.name, 'registrations': event.teams.count() if event.is_team_event else event.users.count()}
-        # visit = Visit.objects.filter(event=event).first()
-        # if visit is not None:
-        #     data['visits'] = visit.hits
-        # else:
-        #     data['visits'] = 0
         events.append(data)
     context = {
         'events': events,

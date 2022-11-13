@@ -2,7 +2,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 from import_export.resources import ModelResource
 
-from .models import Event, Visit, Team, Rule, EventUserTable
+from .models import Event, Team, Rule, EventUserTable
 
 # Register your models here.
 
@@ -19,9 +19,6 @@ class EventAdmin(ImportExportModelAdmin):
 
     def usersRegistered(self, obj):
         return obj.users.count()
-
-class VisitAdmin(admin.ModelAdmin):
-    list_display = ['id', 'hits', 'event']
 
 class TeamResource(ModelResource):
     class Meta:
@@ -51,7 +48,6 @@ class EventUserTableAdmin(admin.ModelAdmin):
     search_field = ['evant__name', 'user__email']
 
 admin.site.register(Event, EventAdmin)
-admin.site.register(Visit, VisitAdmin)
 admin.site.register(Team, TeamAdmin)
 admin.site.register(Rule, RuleAdmin)
 admin.site.register(EventUserTable, EventUserTableAdmin)

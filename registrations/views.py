@@ -1,7 +1,6 @@
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate
 from django.core.mail import send_mail
-from django.core.files.storage import default_storage
 from django.conf import settings
 from django.http import Http404
 from django.template.loader import render_to_string
@@ -16,29 +15,8 @@ from .serializers import UserSerializer
 from .models import User, EmailVerification
 
 import random, string
-# import pyrebase, os
-# from decouple import config
 
 # Create your views here.
-
-# firebaseConfig = {
-#     "apiKey": config("apiKey"),
-#     "authDomain": config("authDomain"),
-#     "projectId": config("projectId"),
-#     "storageBucket": config("storageBucket"),
-#     "messagingSenderId": config("messagingSenderId"),
-#     "appId": config("appId"),
-#     "measurementId": config("measurementId"),
-#     "databaseURL": config("databaseURL")
-# }
-
-# firebase = pyrebase.initialize_app(firebaseConfig)
-# storage = firebase.storage()
-# auth = firebase.auth()
-
-# user = auth.sign_in_with_email_and_password(config('firebaseAuthEmail'), config('firebaseAuthPassword'))
-
-# allowed_ext = ['.pdf', '.png', '.jpg', '.jpeg']
 
 # class GetOTPView(APIView):
 #     def post(self, request):
@@ -69,9 +47,6 @@ class RegisterView(APIView):
         college_missing = False
         id_missing = False
         # wrong_otp = False
-        # invalid_file = False
-        # oversize_file = False
-        # save_id = False
         is_thaparian = request.data.get('is_thaparian')
         if is_thaparian=="true" or is_thaparian==True:
             roll_no = request.data.get('roll_no')
@@ -89,16 +64,6 @@ class RegisterView(APIView):
             if id_proof is None:
                 id_missing = True
                 is_error = True
-            # else:
-            #     ext = os.path.splitext(id_proof.name)
-            #     ext = ext[1]
-            #     if ext not in allowed_ext:
-            #         invalid_file = True
-            #         is_error = True
-            #     elif id_proof.size>512000:
-            #         oversize_file = True
-            #         is_error = True
-            #     save_id = True
             data['id_proof'] = id_proof
             data['college'] = college
         # otp_entry = EmailVerificationOtp.objects.filter(email=data['email']).first()
@@ -118,22 +83,7 @@ class RegisterView(APIView):
                 errors['id_proof'] = ['ID proof required']
             # if wrong_otp:
             #     errors['otp'] = ['Wrong OTP.']
-            # elif invalid_file:
-            #     errors['id_proof'] = ['Invalid file type.']
-            # elif oversize_file:
-            #     errors['id_proof'] = ['File size limit exceeded.']
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
-        # if save_id:
-        #     file = request.data.get('id_proof')
-        #     filename = ''.join(random.choice(string.ascii_letters) for _ in range(10)) + '_' + file.name
-        #     sysFilename = default_storage.save('id_proof/'+filename, file)
-        #     storage.child('id/'+filename).put('media/'+sysFilename)
-        #     url = storage.child('id/'+filename).get_url(user['idToken'])
-        #     sys_delete = default_storage.delete(sysFilename)
-        #     data['id_proof'] = url
-        #     serializer = UserSerializer(data=data)
-        #     if not serializer.is_valid():
-        #         return Response({"errors": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
         user = User.objects.filter(email=data['email']).first()
         verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
@@ -181,18 +131,10 @@ class reset_request(APIView):
             otp = ''.join(random.choice(string.digits) for _ in range(7))
             user.otp = otp
             user.save()
-            # send_mail(
-            # 'OTP for password reset',
-            # f'The OTP to change your password is {otp}. Do not share this with anyone.',
-            # settings.EMAIL_HOST_USER,
-            # [email],
-            # fail_silently=False,
-            # )
             html_message = render_to_string('registrations/otp.html', {'otp': otp})
             message = strip_tags(html_message) #incase rendering fails
             subj = "Password Reset OTP for Saturnalia'22"
             from_email= settings.EMAIL_HOST_USER
-            # send_mail("Registration succesfull.", f"Thankyou for registering for STAIL. To verify your email, open {verification_url}", settings.EMAIL_HOST_USER, [data['email'],], fail_silently=False)
             send_mail(subj, message, from_email, [data['email'],],html_message=html_message, fail_silently=False)
             message = {
                 'status': 'Success'}
