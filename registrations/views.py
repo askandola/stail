@@ -107,7 +107,7 @@ def VerifyEmail(request, slug):
     user.is_verified = True
     user.save()
     vEntry.delete()
-    return redirect('https://saturnaliatiet.com/verification/', permanent=False)
+    return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
 
 class LoginView(APIView):
     def post(self, request):
