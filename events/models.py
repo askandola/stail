@@ -70,7 +70,7 @@ class Rule(models.Model):
     content = models.CharField(max_length=1000)
 
     def __str__(self):
-        return self.number+'_'+self.event.name
+        return str(self.number)+'_'+self.event.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)
