@@ -23,6 +23,11 @@ class EventsListView(APIView):
         visit = cache.get('visits', 0)
         visit += 1
         cache.set('visits', visit)
+        user = request.user
+        if user.is_anonymous:
+            list = cache.get(slug)
+            if list!=None:
+                return Response(list, status=status.HTTP_200_OK)
         if slug=='all':
             # events_queryset_after_time = Event.objects.filter(date=datetime.date.today(), time__gte=datetime.datetime.now().strftime('%H:%M:%S')).order_by('order', 'date', 'time')
             # events_queryset_after_date = Event.objects.filter(date__gt=datetime.date.today()).order_by('order', 'date', 'time')
@@ -49,7 +54,6 @@ class EventsListView(APIView):
             events_queryset = Event.objects.filter(type='EV').order_by('order')
         else:
             raise Http404
-        user = request.user
         list = []
         # for events_queryset in [events_queryset_today_null_time, events_queryset_after_time, events_queryset_after_date, events_queryset_before_date, events_queryset_before_time, events_queryset_null_date]:
         for event in events_queryset:
@@ -82,6 +86,8 @@ class EventsListView(APIView):
             for rule in rules:
                 data['rules'].append(rule.content)
             list.append(data)
+        if user.is_anonymous:
+            cache.add(slug, list)
         return Response(list, status=status.HTTP_200_OK)
 
 class EventView(APIView):

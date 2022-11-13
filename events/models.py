@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.cache import cache
 
 from registrations.models import User
 
@@ -65,6 +66,7 @@ class Event(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
+        cache.delete_many(['all', 'competitions', 'events'])
         super(Event, self).save(*args, **kwargs)
 
 class Rule(models.Model):
