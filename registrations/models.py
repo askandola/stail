@@ -10,6 +10,8 @@ import string
 def uploadPath(instance, filename):
     return f"id/{instance.name}_{''.join(random.choice(string.ascii_letters) for _ in range(5))}_{filename}"
 
+#to do :-
+#primary keys of phone number and roll number
 class User(AbstractBaseUser):
     
     email = models.EmailField(unique=True)
@@ -22,7 +24,7 @@ class User(AbstractBaseUser):
     id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
 
-    is_verified = models.BooleanField(default=False)
+    # is_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -59,3 +61,18 @@ class EmailVerification(models.Model):
 
     def __str__(self):
         return self.user.email
+
+# class UnverifiedUser(AbstractBaseUser):
+#     email = models.EmailField(unique=True)
+#     name = models.CharField(max_length=150)
+#     phone_no = models.CharField(max_length=15,)
+
+#     is_thaparian = models.BooleanField(blank=True, default=False)
+#     roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
+
+#     id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
+#     college = models.CharField(max_length=350, null=True, blank=True, default=None)
+#     slug = models.CharField(max_length=50)
+    
+#     def __str__(self):
+#         return self.email

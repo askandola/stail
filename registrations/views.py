@@ -11,8 +11,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
-from .serializers import UserSerializer
-from .models import User, EmailVerification
+from .serializers import UserSerializer, UnverifiedUserSerializer
+from .models import User, EmailVerification, UnverifiedUser
 
 import random, string
 
@@ -70,6 +70,11 @@ class RegisterView(APIView):
         # if otp_entry is None or data['otp']!=otp_entry.otp:
         #     is_error = True
             # wrong_otp = True
+        # verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        # while UnverifiedUser.objects.filter(slug=verification_slug).exists():
+        #     verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        # data['slug'] = verification_slug
+        # serializer = UnverifiedUserSerializer(data=data)
         serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
@@ -89,6 +94,7 @@ class RegisterView(APIView):
         verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
         while EmailVerification.objects.filter(slug=verification_slug).exists():
             verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        
         verification_entry = EmailVerification(user=user, slug=verification_slug)
         verification_entry.save()
         verification_url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
@@ -108,6 +114,17 @@ def VerifyEmail(request, slug):
     user.save()
     vEntry.delete()
     return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
+
+# def VerifyEmail(request, slug):
+#     # vEntry = EmailVerification.objects.filter(slug=slug).first()
+#     vEntry = UnverifiedUser.objects.filter(slug=slug).first()
+#     if vEntry is None:
+#         raise Http404
+#     user = User(email=vEntry.email, name=vEntry.name, password=vEntry.password, phone_no=vEntry.phone_no, is_thaparian=vEntry.is_thaparian, roll_no=vEntry.roll_no, college=vEntry.college, id_proof=vEntry.id_proof)
+#     # user.is_verified = True
+#     user.save()
+#     vEntry.delete()
+#     return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
 
 class LoginView(APIView):
     def post(self, request):

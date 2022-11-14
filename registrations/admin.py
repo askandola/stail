@@ -3,7 +3,7 @@ from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 
-from .models import User, EmailVerification 
+from .models import User, EmailVerification, UnverifiedUser
 
 # Register your models here.
 
@@ -44,6 +44,16 @@ class EmailVerificationAdmin(ImportExportModelAdmin):
     list_display = ('id', 'slug', 'user')
     list_per_page = 50
     search_fields = ('user__email', 'slug')
+# class UnverifiedUserResource(ModelResource):
+#     class Meta:
+#         model = UnverifiedUser
+
+# class UnverifiedUserAdmin(ImportExportModelAdmin):
+#     resource_class = UnverifiedUserResource
+#     list_display = ('id', 'slug', 'email')
+#     list_per_page = 50
+#     # search_fields = ('email', 'slug')
 
 admin.site.register(User, UserModelAdmin)
 admin.site.register(EmailVerification, EmailVerificationAdmin)
+# admin.site.register(UnverifiedUser, UnverifiedUserAdmin)
