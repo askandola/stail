@@ -11,8 +11,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
-from .serializers import UserSerializer, UnverifiedUserSerializer
-from .models import User, EmailVerification, UnverifiedUser
+from .serializers import UserSerializer 
+# from .serializers import UserSerializer, UnverifiedUserSerializer
+from .models import User, EmailVerification
+# from .models import User, EmailVerification, UnverifiedUser
 
 import random, string
 

@@ -3,7 +3,8 @@ from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 
-from .models import User, EmailVerification, UnverifiedUser
+from .models import User, EmailVerification 
+# from .models import UnverifiedUser
 
 # Register your models here.
 

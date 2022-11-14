@@ -1,7 +1,7 @@
 from rest_framework.serializers import ModelSerializer
 
 from .models import User
-from .models import UnverifiedUser
+# from .models import UnverifiedUser
 
 class UserSerializer(ModelSerializer):
     class Meta:
