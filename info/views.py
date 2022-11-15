@@ -11,7 +11,7 @@ from rest_framework import status
 from .serializers import QuerySerializer, SponsorSerializer
 from .models import Sponsor, VerifyEndpoint
 from events.models import Event
-from registrations.models import User, EmailVerification
+from registrations.models import User, UnverifiedUser
 from .models import Query, Visit
 
 import csv, itertools
@@ -50,8 +50,10 @@ def update_db_from_cache():
 def DashboardView(request):
     update_db_from_cache()
     events_queryset = Event.objects.all()
-    registrations = User.objects.filter(is_staff=False, is_verified=True).count()
-    pending_verifications = EmailVerification.objects.count()
+    # registrations = User.objects.filter(is_staff=False, is_verified=True).count()
+    registrations = User.objects.filter(is_staff=False).count()
+    # pending_verifications = EmailVerification.objects.count()
+    pending_verifications = UnverifiedUser.objects.count()
     total_visits = Visit.objects.first()
     unread_queries = Query.objects.filter(is_read=False).count()
     if total_visits is None:

@@ -14,13 +14,19 @@ def uploadPath(instance, filename):
 #to do :-
 #primary keys of phone number and roll number
 class User(AbstractBaseUser):
+
+    GENDER_CHOICES = [
+        ('M', 'Male'),
+        ('F', 'Female')
+    ]
     
     email = models.EmailField(unique=True)
     name = models.CharField(max_length=150)
-    phone_no = models.CharField(max_length=15, unique=True)
+    phone_no = models.CharField(max_length=15)
+    gender = models.CharField(max_length=1, null=True, blank=True, default=None, choices=GENDER_CHOICES)
 
     is_thaparian = models.BooleanField(blank=True, default=False)
-    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None, unique=True)
+    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
 
     id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
     college = models.CharField(max_length=350, null=True, blank=True, default=None)
@@ -55,25 +61,28 @@ class User(AbstractBaseUser):
     def __str__(self):
         return self.email
 
-class EmailVerification(models.Model):
-    # otp = models.CharField(max_length=10)
+# class EmailVerification(models.Model):
+#     # otp = models.CharField(max_length=10)
+#     slug = models.CharField(max_length=50)
+#     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+#     def __str__(self):
+#         return self.user.email
+
+class UnverifiedUser(AbstractBaseUser):
+    email = models.EmailField(unique=True)
+    name = models.CharField(max_length=150)
+    phone_no = models.CharField(max_length=15)
+    gender = models.CharField(max_length=20, null=True, default=None)
+
+    is_thaparian = models.BooleanField(blank=True, default=False)
+    roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
+
+    id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
+    college = models.CharField(max_length=350, null=True, blank=True, default=None)
     slug = models.CharField(max_length=50)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    password = models.CharField(max_length=150)
 
     def __str__(self):
-        return self.user.email
-
-# class UnverifiedUser(AbstractBaseUser):
-#     email = models.EmailField(unique=True)
-#     name = models.CharField(max_length=150)
-#     phone_no = models.CharField(max_length=15,)
-
-#     is_thaparian = models.BooleanField(blank=True, default=False)
-#     roll_no = models.CharField(max_length=15, null=True, blank=True, default=None)
-
-#     id_proof = models.URLField(max_length=5000, null=True, blank=True, default=None)
-#     college = models.CharField(max_length=350, null=True, blank=True, default=None)
-#     slug = models.CharField(max_length=50)
-    
-#     def __str__(self):
-#         return self.email
+        return self.email

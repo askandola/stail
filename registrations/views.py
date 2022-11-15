@@ -11,10 +11,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 
-from .serializers import UserSerializer 
-# from .serializers import UserSerializer, UnverifiedUserSerializer
-from .models import User, EmailVerification
-# from .models import User, EmailVerification, UnverifiedUser
+# from .serializers import UserSerializer 
+from .serializers import UserSerializer, UnverifiedUserSerializer
+# from .models import User, EmailVerification
+from .models import User, UnverifiedUser
 
 import random, string
 
@@ -42,13 +42,18 @@ class RegisterView(APIView):
             'name': request.data.get('name'),
             'password': request.data.get('password'),
             'phone_no': request.data.get('phone_no'),
+            'gender': request.data.get('gender'),
             # 'otp': request.data.get('otp'),
         }
         is_error = False
         roll_no_missing = False
         college_missing = False
         id_missing = False
+        user_exists = False
         # wrong_otp = False
+        if User.objects.filter(email=data['email']).exists():
+            is_error = True
+            user_exists = True
         is_thaparian = request.data.get('is_thaparian')
         if is_thaparian=="true" or is_thaparian==True:
             roll_no = request.data.get('roll_no')
@@ -71,13 +76,13 @@ class RegisterView(APIView):
         # otp_entry = EmailVerificationOtp.objects.filter(email=data['email']).first()
         # if otp_entry is None or data['otp']!=otp_entry.otp:
         #     is_error = True
-            # wrong_otp = True
-        # verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
-        # while UnverifiedUser.objects.filter(slug=verification_slug).exists():
-        #     verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
-        # data['slug'] = verification_slug
-        # serializer = UnverifiedUserSerializer(data=data)
-        serializer = UserSerializer(data=data)
+        #     wrong_otp = True
+        verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        while UnverifiedUser.objects.filter(slug=verification_slug).exists():
+            verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        data['slug'] = verification_slug
+        serializer = UnverifiedUserSerializer(data=data)
+        # serializer = UserSerializer(data=data)
         if not serializer.is_valid():
             is_error = True
         if is_error:
@@ -88,17 +93,18 @@ class RegisterView(APIView):
                 errors['college'] = ['College name required']
             if id_missing:
                 errors['id_proof'] = ['ID proof required']
+            if user_exists:
+                errors['email'] = ['Email already exists.']
             # if wrong_otp:
             #     errors['otp'] = ['Wrong OTP.']
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
         serializer.save()
-        user = User.objects.filter(email=data['email']).first()
-        verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
-        while EmailVerification.objects.filter(slug=verification_slug).exists():
-            verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
-        
-        verification_entry = EmailVerification(user=user, slug=verification_slug)
-        verification_entry.save()
+        # user = User.objects.filter(email=data['email']).first()
+        # verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        # while EmailVerification.objects.filter(slug=verification_slug).exists():
+        #     verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
+        # verification_entry = EmailVerification(user=user, slug=verification_slug)
+        # verification_entry.save()
         verification_url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
         html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
         mesg = strip_tags(html_message) #incase rendering fails
@@ -107,38 +113,43 @@ class RegisterView(APIView):
         send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
-def VerifyEmail(request, slug):
-    vEntry = EmailVerification.objects.filter(slug=slug).first()
-    if vEntry is None:
-        raise Http404
-    user = vEntry.user
-    user.is_verified = True
-    user.save()
-    vEntry.delete()
-    return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
-
 # def VerifyEmail(request, slug):
-#     # vEntry = EmailVerification.objects.filter(slug=slug).first()
-#     vEntry = UnverifiedUser.objects.filter(slug=slug).first()
+#     vEntry = EmailVerification.objects.filter(slug=slug).first()
 #     if vEntry is None:
 #         raise Http404
-#     user = User(email=vEntry.email, name=vEntry.name, password=vEntry.password, phone_no=vEntry.phone_no, is_thaparian=vEntry.is_thaparian, roll_no=vEntry.roll_no, college=vEntry.college, id_proof=vEntry.id_proof)
-#     # user.is_verified = True
+#     user = vEntry.user
+#     user.is_verified = True
 #     user.save()
 #     vEntry.delete()
 #     return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
+
+def VerifyEmail(request, slug):
+    vEntry = UnverifiedUser.objects.filter(slug=slug).first()
+    data = UserSerializer(vEntry).data.copy()
+    if vEntry is None:
+        raise Http404
+    serializer = UserSerializer(data=data)
+    if not serializer.is_valid():
+        raise Http404
+    serializer.save()
+    vEntry.delete()
+    return redirect('https://www.saturnaliatiet.com/verification', permanent=False)
 
 class LoginView(APIView):
     def post(self, request):
         email = request.data.get('email')
         password = request.data.get('password')
         user = authenticate(email=email, password=password)
+        if UnverifiedUser.objects.filter(email=email).exists():
+            return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
         if user is None:
             return Response({'error': 'Invalid credentials.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not user.is_verified:
-            return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
         token, created = Token.objects.get_or_create(user=user)
-        return Response({'key': token.key}, status=status.HTTP_200_OK)
+        data = {
+            'name': user.name,
+            'key': token.key,
+        }
+        return Response(data, status=status.HTTP_200_OK)
 
 class reset_request(APIView):
     def post(self, request):

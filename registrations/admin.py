@@ -3,8 +3,8 @@ from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 
-from .models import User, EmailVerification 
-# from .models import UnverifiedUser
+from .models import User 
+from .models import UnverifiedUser
 
 # Register your models here.
 
@@ -36,25 +36,26 @@ class UserModelAdmin(ImportExportModelAdmin):
     def events_count(self, item):
         return item.event_registrations.count()+item.leader_team_set.count()+item.team_set.count()
 
-class EmailVerificationResource(ModelResource):
-    class Meta:
-        model = EmailVerification
-
-class EmailVerificationAdmin(ImportExportModelAdmin):
-    resource_class = EmailVerificationResource
-    list_display = ('id', 'slug', 'user')
-    list_per_page = 50
-    search_fields = ('user__email', 'slug')
-# class UnverifiedUserResource(ModelResource):
+# class EmailVerificationResource(ModelResource):
 #     class Meta:
-#         model = UnverifiedUser
+#         model = EmailVerification
 
-# class UnverifiedUserAdmin(ImportExportModelAdmin):
-#     resource_class = UnverifiedUserResource
-#     list_display = ('id', 'slug', 'email')
+# class EmailVerificationAdmin(ImportExportModelAdmin):
+#     resource_class = EmailVerificationResource
+#     list_display = ('id', 'slug', 'user')
 #     list_per_page = 50
-#     # search_fields = ('email', 'slug')
+#     search_fields = ('user__email', 'slug')
+
+class UnverifiedUserResource(ModelResource):
+    class Meta:
+        model = UnverifiedUser
+
+class UnverifiedUserAdmin(ImportExportModelAdmin):
+    resource_class = UnverifiedUserResource
+    list_display = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college', 'slug')
+    list_per_page = 50
+    search_fields = ('email', 'name', 'phone_no', 'roll_no', 'college', 'slug')
 
 admin.site.register(User, UserModelAdmin)
-admin.site.register(EmailVerification, EmailVerificationAdmin)
-# admin.site.register(UnverifiedUser, UnverifiedUserAdmin)
+# admin.site.register(EmailVerification, EmailVerificationAdmin)
+admin.site.register(UnverifiedUser, UnverifiedUserAdmin)

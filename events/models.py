@@ -64,6 +64,12 @@ class Event(models.Model):
     prize1 = models.CharField(max_length=150, null=True, blank=True, default=None)
     prize2 = models.CharField(max_length=150, null=True, blank=True, default=None)
 
+    max_female_count = models.IntegerField(null=True, blank=True, default=None)
+    max_male_count = models.IntegerField(null=True, blank=True, default=None)
+
+    curr_male_count = models.IntegerField(blank=True, default=0)
+    curr_female_count = models.IntegerField(blank=True, default=0)
+
     order = models.SmallIntegerField(blank=True, null=True, default=None)
 
     def __str__(self):

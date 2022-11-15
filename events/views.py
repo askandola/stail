@@ -84,7 +84,7 @@ class EventsListView(APIView):
             data['is_registered'] = False
             data['registration_allowed'] = True
             if not user.is_anonymous:
-                data['is_registered'] = user.event_registrations.filter(event=event).exists()
+                data['is_registered'] = user.event_registrations.filter(event=event).exists() or user.leader_team_set.filter(event=event).exists() or user.team_set.filter(event=event).exists()
                 if event.intra_thapar and not user.is_thaparian:
                     data['registration_allowed'] = False
             data['rules'] = []
@@ -130,7 +130,7 @@ class EventView(APIView):
         data['is_registered'] = False
         data['registration_allowed'] = True
         if not user.is_anonymous:
-            data['is_registered'] = user.event_registrations.filter(event=event).exists()
+            data['is_registered'] = user.event_registrations.filter(event=event).exists() or user.leader_team_set.filter(event=event).exists() or user.team_set.filter(event=event).exists()
             if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
         data['rules'] = []
@@ -157,8 +157,15 @@ class EventRegisterView(APIView):
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         if user.event_registrations.filter(event=event).exists():
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not user.is_verified:
-            return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if user.gender=='M':
+            if event.max_male_count!=None and event.curr_male_count>=event.max_male_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_male_count += 1
+        elif user.gender=='F':
+            if event.max_female_count!=None and event.curr_female_count>=event.max_female_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_female_count += 1
+        event.save()
         regstrEntry = EventUserTable(user=user, event=event)
         if user.is_thaparian:
             regstrEntry.amount_paid = True
@@ -220,6 +227,15 @@ class CreateTeam(APIView):
         is_member = user.leader_team_set.filter(event=event).exists()
         if is_leader or is_member:
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.gender=='M':
+            if event.max_male_count!=None and event.curr_male_count>=event.max_male_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_male_count += 1
+        elif user.gender=='F':
+            if event.max_female_count!=None and event.curr_female_count>=event.max_female_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_female_count += 1
+        event.save()
         key = getRandomKey()
         while Team.objects.filter(key=key).exists():
             key = getRandomKey()
@@ -267,6 +283,15 @@ class JoinTeam(APIView):
         is_member = user.leader_team_set.filter(event=event).exists()
         if is_leader or is_member:
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.gender=='M':
+            if event.max_male_count!=None and event.curr_male_count>=event.max_male_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_male_count += 1
+        elif user.gender=='F':
+            if event.max_female_count!=None and event.curr_female_count>=event.max_female_count:
+                return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
+            event.curr_female_count += 1
+        event.save()
         key = request.data.get('key')
         if key is None:
             return Response({'error': 'Key is required.'}, status=status.HTTP_400_BAD_REQUEST)
