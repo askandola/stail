@@ -60,6 +60,9 @@ class Event(models.Model):
     is_team_event = models.BooleanField(default=False)  #True for team based events
     min_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
     max_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
+    
+    prize1 = models.CharField(max_length=150, null=True, blank=True, default=None)
+    prize2 = models.CharField(max_length=150, null=True, blank=True, default=None)
 
     order = models.SmallIntegerField(blank=True, null=True, default=None)
 
@@ -78,13 +81,13 @@ class Rule(models.Model):
     def __str__(self):
         return str(self.number)+'_'+self.event.name
 
-class Prize(models.Model):
-    event = models.ForeignKey(Event, related_name='prizes', on_delete=models.CASCADE)
-    position = models.CharField(max_length=50)
-    value = models.CharField(max_length=200)
+# class Prize(models.Model):
+#     event = models.ForeignKey(Event, related_name='prizes', on_delete=models.CASCADE)
+#     position = models.CharField(max_length=50)
+#     value = models.CharField(max_length=200)
 
-    def __str__(self):
-        return self.position+'_'+self.event.name
+#     def __str__(self):
+#         return self.position+'_'+self.event.name
 
 class Team(models.Model):
     name = models.CharField(max_length=100)

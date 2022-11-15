@@ -91,10 +91,8 @@ class EventsListView(APIView):
             rules = event.rules.all().order_by('number')
             for rule in rules:
                 data['rules'].append(rule.content)
-            data['prizes'] = []
-            prizes = event.prizes.all()
-            for prize in prizes:
-                data['prizes'].append({prize.position: prize.value})
+            data['prize1'] = event.prize1
+            data['prize2'] = event.prize2
             list.append(data)
         if user.is_anonymous:
             cache.add(slug, list)
@@ -139,6 +137,8 @@ class EventView(APIView):
         rules = event.rules.order_by('number').all()
         for rule in rules:
             data['rules'].append(rule.content)
+        data['prize1'] = event.prize1
+        data['prize2'] = event.prize2
         return Response(data, status=status.HTTP_200_OK)
 
 class EventRegisterView(APIView):
