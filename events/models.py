@@ -53,6 +53,7 @@ class Event(models.Model):
     is_active = models.BooleanField(blank=True, default=True)
 
     fees_amount = models.IntegerField(default=0, blank=True)
+    fees_per_member = models.IntegerField(default=0, blank=True)
 
     verification_required = models.BooleanField(blank=True, default=False)
 
@@ -77,19 +78,30 @@ class Rule(models.Model):
     def __str__(self):
         return str(self.number)+'_'+self.event.name
 
+class Prize(models.Model):
+    event = models.ForeignKey(Event, related_name='prizes', on_delete=models.CASCADE)
+    position = models.CharField(max_length=50)
+    value = models.CharField(max_length=200)
+
+    def __str__(self):
+        return self.position+'_'+self.event.name
+
 class Team(models.Model):
     name = models.CharField(max_length=100)
     key = models.CharField(max_length=50, unique=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='teams')
     leader = models.ForeignKey(User, on_delete=models.CASCADE, related_name='leader_team_set')
     members = models.ManyToManyField(User, blank=True)
-
+    max_count = models.IntegerField(default=1)
+    amount_paid = models.BooleanField(default=False)
+    is_thapar_team = models.BooleanField(default=True)
     def __str__(self):
         return self.name+'_'+self.event.name
 
 class EventUserTable(models.Model):
     event = models.ForeignKey(Event, related_name='users', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='event_registrations', on_delete=models.CASCADE)
+    amount_paid = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.email+'_'+self.event.name

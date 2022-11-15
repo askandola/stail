@@ -76,7 +76,9 @@
             margin: 20px;
             text-align: center;
         }
-      
+        .team-cred2 a{
+          color: #ffffff;
+        }
         footer {
             padding: 50px 0px;
           }
@@ -142,12 +144,41 @@
     <div id="main">
     <div class="sat-logo logo-height"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/saturnalia.png" alt="image"></div>
     <div class="event-text">CONGRATULATIONS!!!</div>
-    <div class="event-text2">You have successfully registered for "{{eventName}}"</div>
+    <div class="event-text2">You have successfully {% if fees_required %}applied to register{% else %}registered{% endif %} for "{{eventName}}"</div>
     {% if teamName %}
     <div class="team-cred">
         Team "<B>{{teamName}}</B>" created successfully<br>
     </div>
     <div class="team-cred2">Your team code is "<b>{{teamKey}}</b>".</div>
+    {% endif %}
+    {% if total_fees or individual_fees %}
+    <div class="team-cred2">
+      To register for this event, you have to pay a total amount of {% if individual_fees %}Rs.{{individual_fees}} only.{% else %}Rs.{{total_fees}} only(Rs.{{team_amount}} + {{members_count}}*(Rs.{{fees_per_member}})).{% endif %}
+    </div>
+    <div class="team-cred2">
+      This includes Accomodation and entry to Cultural/Star Nights.
+    </div>
+    <div class="team-cred2">
+      Entry fees should be transferred via RTGS/ONLINE TRANSFER.
+    </div>
+    <div class="team-cred2">
+      TIET STUDENT ACTIVITY ACCOUNT<br>
+      Account Number: 40507372828<br>
+      IFS Code: SBIN0050244<br>
+      (50244)-PATIALA; THAPAR INSTITUTE<br>
+      THAPAR INSTITUTE OF ENGG & TECHNOLOGY PATIALA, PUNJAB 147001
+    </div>
+    <div class="team-cred2">
+      Entry fees should be transferred via RTGS/ONLINE TRANSFER only.
+    </div>
+    <div class="team-cred2">
+      Once paid, fill out <a href="https://docs.google.com/forms/d/e/1FAIpQLSetedCyChtSPQUcXkSctT9Cfl9qb5O_fYpNfsDJ0c1Oal-gYA/viewform?usp=sf_link">this form</a>, to confirm your payment and participation.
+    </div>
+    {% endif %}
+    {% if fees_message %}
+    <div class="team-cred2">
+      Contact your team leader to pay the requisite fees for participation in the event. Please ignore if already paid.
+    </div>
     {% endif %}
     {% if qr_url %}
     <div class="box"><img src="{{qr_url}}" alt="QR code"></div>

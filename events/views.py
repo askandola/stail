@@ -71,6 +71,12 @@ class EventsListView(APIView):
             data['domain'] = event.domain
             data['deadline'] = event.deadline
             data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
+            if event.fees_amount==0:
+                data['fees'] = 'Free'
+            elif event.fees_per_member==0:
+                data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per registration'
+            else:
+                data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per team + Rs.' + str(event.fees_per_member) + '/- per member'
             data['fees_amount'] = event.fees_amount
             data['is_team_event'] = event.is_team_event
             data['min_team_size'] = event.min_team_size
@@ -85,6 +91,10 @@ class EventsListView(APIView):
             rules = event.rules.all().order_by('number')
             for rule in rules:
                 data['rules'].append(rule.content)
+            data['prizes'] = []
+            prizes = event.prizes.all()
+            for prize in prizes:
+                data['prizes'].append({prize.position: prize.value})
             list.append(data)
         if user.is_anonymous:
             cache.add(slug, list)
@@ -110,7 +120,12 @@ class EventView(APIView):
         data['domain'] = event.domain
         data['deadline'] = event.deadline
         data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
-        data['fees_amount'] = event.fees_amount
+        if event.fees_amount==0:
+            data['fees'] = 'Free'
+        elif event.fees_per_member==0:
+            data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per registration'
+        else:
+            data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per team + Rs.' + str(event.fees_per_member) + '/- per member'
         data['is_team_event'] = event.is_team_event
         data['min_team_size'] = event.min_team_size
         data['max_team_size'] = event.max_team_size
@@ -145,6 +160,8 @@ class EventRegisterView(APIView):
         if not user.is_verified:
             return Response({'error': 'Email unverified.'}, status=status.HTTP_401_UNAUTHORIZED)
         regstrEntry = EventUserTable(user=user, event=event)
+        if user.is_thaparian:
+            regstrEntry.amount_paid = True
         regstrEntry.save()
         context = {'eventName': event.name}
         if event.verification_required:
@@ -158,6 +175,9 @@ class EventRegisterView(APIView):
             verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user, url=url)
             verificationEntry.save()
             context['qr_url'] = url
+        if not user.is_thaparian:
+            context['fees_required'] = True
+            context['individual_fees'] = event.fees_amount
         subject = f"Thank you for registering for {event.name}"
         html_message = render_to_string('events/mail.html', context)
         message = strip_tags(html_message)
@@ -186,9 +206,16 @@ class CreateTeam(APIView):
             return Response({'error': 'Team Name required.'}, status=status.HTTP_400_BAD_REQUEST)
         if event.teams.filter(name=name).exists():
             return Response({'error': 'Team name already taken.'}, status=status.HTTP_400_BAD_REQUEST)
+        count = request.data.get('members_count')
+        if count is None:
+            return Response({'error': 'Members count required.'}, status=status.HTTP_400_BAD_REQUEST)
+        if count<event.min_team_size:
+            return Response({'error': 'Members count should be greater than minimum team size'}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if user.is_thaparian and event.type=='CP' and event.category=='CL':
+            return Response({'error': 'Auditions for Thapar students are over.'}, status=status.HTTP_400_BAD_REQUEST)
         is_leader = user.team_set.filter(event=event).exists()
         is_member = user.leader_team_set.filter(event=event).exists()
         if is_leader or is_member:
@@ -196,13 +223,23 @@ class CreateTeam(APIView):
         key = getRandomKey()
         while Team.objects.filter(key=key).exists():
             key = getRandomKey()
-        team = Team(leader=user, event=event, name=name, key=key)
+        team = Team(leader=user, event=event, name=name, key=key, max_count=count)
+        if user.is_thaparian:
+            team.amount_paid = True
+        else:
+            team.is_thapar_team = False
         team.save()
         context = {
             'eventName': event.name,
             'teamName': name,
             'teamKey': key
         }
+        if not user.is_thaparian:
+            context['fees_required'] = True
+            context['team_amount'] = event.fees_amount
+            context['fees_per_member'] = event.fees_per_member
+            context['members_count'] = team.max_count
+            context['total_fees'] = event.fees_amount + (event.fees_per_member*team.max_count)
         subject = f"Thank you for registering for {event.name}"
         html_message = render_to_string('events/mail.html', context)
         message = strip_tags(html_message)
@@ -224,6 +261,8 @@ class JoinTeam(APIView):
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if team.is_thapar_team and not user.is_thaparian:
+            return Response({'error': 'Not allowed. This team is of Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         is_leader = user.team_set.filter(event=event).exists()
         is_member = user.leader_team_set.filter(event=event).exists()
         if is_leader or is_member:
@@ -234,13 +273,16 @@ class JoinTeam(APIView):
         team = Team.objects.filter(key=key).first()
         if team is None:
             return Response({'error': 'Team not found.'}, status=status.HTTP_404_NOT_FOUND)
-        if team.members.count()+1==event.max_team_size:
+        if team.members.count()+1==event.max_team_size or team.members.count()+1==team.max_count:
             return Response({'error': 'Team Full'}, status=status.HTTP_400_BAD_REQUEST)
         team.members.add(user)
         team.save()
         context = {
             'eventName': event.name
         }
+        if not team.amount_paid:
+            context['fees_message'] = True
+            context['fees_required'] = True
         subject = f"Thank you for registering for {event.name}"
         html_message = render_to_string('events/mail.html', context)
         message = strip_tags(html_message)
