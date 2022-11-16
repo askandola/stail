@@ -87,9 +87,8 @@ class EventsListView(APIView):
                 if event.intra_thapar and not user.is_thaparian:
                     data['registration_allowed'] = False
             data['rules'] = []
-            rules = event.rules.all().order_by('number')
-            for rule in rules:
-                data['rules'].append(rule.content)
+            for rule in event.rules_array:
+                data['rules'].append(rule)
             data['prize1'] = event.prize1
             data['prize2'] = event.prize2
             list.append(data)
@@ -135,9 +134,8 @@ class EventView(APIView):
             if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
         data['rules'] = []
-        rules = event.rules.order_by('number').all()
-        for rule in rules:
-            data['rules'].append(rule.content)
+        for rule in event.rules_array:
+            data['rules'].append(rule)
         data['prize1'] = event.prize1
         data['prize2'] = event.prize2
         return Response(data, status=status.HTTP_200_OK)

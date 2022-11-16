@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.cache import cache
+from django.contrib.postgres.fields import ArrayField
 
 from registrations.models import User
 
@@ -60,7 +61,9 @@ class Event(models.Model):
     is_team_event = models.BooleanField(default=False)  #True for team based events
     min_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
     max_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
-    
+
+    rules_array = ArrayField(base_field=models.CharField(max_length=1000))
+
     prize1 = models.CharField(max_length=150, null=True, blank=True, default=None)
     prize2 = models.CharField(max_length=150, null=True, blank=True, default=None)
 
