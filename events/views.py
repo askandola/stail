@@ -82,10 +82,16 @@ class EventsListView(APIView):
             data['max_team_size'] = event.max_team_size
             data['is_registered'] = False
             data['registration_allowed'] = True
+            data['is_leader'] = False
+            data['is_member'] = False
             if not user.is_anonymous:
-                data['is_registered'] = user.event_registrations.filter(event=event).exists() or user.leader_team_set.filter(event=event).exists() or user.team_set.filter(event=event).exists()
+                is_leader = user.leader_team_set.filter(event=event).exists()
+                is_member = user.team_set.filter(event=event).exists()
+                data['is_registered'] = user.event_registrations.filter(event=event).exists() or is_leader or is_member
                 if event.intra_thapar and not user.is_thaparian:
                     data['registration_allowed'] = False
+                data['is_member'] = is_member
+                data['is_leader'] = is_leader
             data['rules'] = []
             rules = event.rules.all().order_by('number')
             for rule in rules:
@@ -130,10 +136,16 @@ class EventView(APIView):
         data['max_team_size'] = event.max_team_size
         data['is_registered'] = False
         data['registration_allowed'] = True
+        data['is_leader'] = False
+        data['is_member'] = False
         if not user.is_anonymous:
-            data['is_registered'] = user.event_registrations.filter(event=event).exists() or user.leader_team_set.filter(event=event).exists() or user.team_set.filter(event=event).exists()
+            is_leader = user.leader_team_set.filter(event=event).exists()
+            is_member = user.team_set.filter(event=event).exists()
+            data['is_registered'] = user.event_registrations.filter(event=event).exists() or is_leader or is_member
             if event.intra_thapar and not user.is_thaparian:
                 data['registration_allowed'] = False
+            data['is_member'] = is_member
+            data['is_leader'] = is_leader
         data['rules'] = []
         rules = event.rules.all().order_by('number')
         for rule in rules:
@@ -216,9 +228,11 @@ class CreateTeam(APIView):
             return Response({'error': 'Team name already taken.'}, status=status.HTTP_400_BAD_REQUEST)
         count = request.data.get('members_count')
         if count is None:
-            return Response({'error': 'Members count required.'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Team size required.'}, status=status.HTTP_400_BAD_REQUEST)
         if count<event.min_team_size:
-            return Response({'error': 'Members count should be greater than minimum team size'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Team size should be greater than minimum team size'}, status=status.HTTP_400_BAD_REQUEST)
+        if count>event.max_team_size:
+            return Response({'error': 'Team size should be less than maximum team size'}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -314,4 +328,54 @@ class JoinTeam(APIView):
         message = strip_tags(html_message)
         from_email = settings.EMAIL_HOST_USER
         send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+        return Response({'status': 'success'}, status=status.HTTP_200_OK)
+
+
+class TeamsJoined(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        user = request.user
+        list = []
+        teams_created = user.leader_team_set.all()
+        for team in teams_created:
+            event = team.event
+            data = {
+                'team_name': team.name,
+                'key': team.key,
+                'event_name': event.name,
+                'max_team_size': event.max_team_size,
+                'min_team_size': event.min_team_size,
+                'members': [team.leader.name]
+            }
+            members = team.members.all()
+            for member in members:
+                data['members'].append(member.name)
+            list.append(data)
+        teams_joined = user.team_set.all()
+        for team in teams_joined:
+            data = {
+                'team_name': team.name,
+                'key': team.key,
+                'event_name': event.name,
+                'max_team_size': event.max_team_size,
+                'min_team_size': event.min_team_size,
+                'members': [team.leader.name]
+            }
+            members = team.members.all()
+            for member in members:
+                data['members'].append(member.name)
+            list.append(data)
+        return Response(list, status=status.HTTP_200_OK)
+
+class DeleteTeam(APIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def post(self, request):
+        user = request.user
+        key = request.data.get('key')
+        team = user.leader_team_set.filter(key=key).first()
+        if team==None:
+            return Response({'error': 'Team not found.'}, status=status.HTTP_400_BAD_REQUEST)
+        team.delete()
         return Response({'status': 'success'}, status=status.HTTP_200_OK)
