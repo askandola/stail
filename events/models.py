@@ -62,7 +62,7 @@ class Event(models.Model):
     min_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
     max_team_size = models.SmallIntegerField(null=True, blank=True, default=None)
 
-    rules_array = ArrayField(base_field=models.CharField(max_length=1000))
+    rules_array = ArrayField(base_field=models.CharField(max_length=1000), null=True, default=None, blank=True)
 
     prize1 = models.CharField(max_length=150, null=True, blank=True, default=None)
     prize2 = models.CharField(max_length=150, null=True, blank=True, default=None)
