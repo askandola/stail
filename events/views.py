@@ -77,7 +77,6 @@ class EventsListView(APIView):
                 data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per registration'
             else:
                 data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per team + Rs.' + str(event.fees_per_member) + '/- per member'
-            data['fees_amount'] = event.fees_amount
             data['is_team_event'] = event.is_team_event
             data['min_team_size'] = event.min_team_size
             data['max_team_size'] = event.max_team_size
@@ -118,10 +117,12 @@ class EventView(APIView):
         data['domain'] = event.domain
         data['deadline'] = event.deadline
         data['is_active'] = True if event.is_active and (event.deadline is None or event.deadline>timezone.now()) else False
-        if event.fees_amount==0:
+        if event.fees_amount==0 and event.fees_per_member==0:
             data['fees'] = 'Free'
         elif event.fees_per_member==0:
             data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per registration'
+        elif event.fees_amount==0:
+            data['fees'] = 'Rs.' + str(event.fees_per_member) + '/- per member'
         else:
             data['fees'] = 'Rs.' + str(event.fees_amount) + '/- per team + Rs.' + str(event.fees_per_member) + '/- per member'
         data['is_team_event'] = event.is_team_event
