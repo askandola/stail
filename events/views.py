@@ -360,6 +360,7 @@ class TeamsJoined(APIView):
                 'event_name': event.name,
                 'max_team_size': event.max_team_size,
                 'min_team_size': event.min_team_size,
+                'given_team_size': team.max_count,
                 'members': [team.leader.name]
             }
             members = team.members.all()
