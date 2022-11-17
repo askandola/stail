@@ -340,35 +340,25 @@ class TeamsJoined(APIView):
         user = request.user
         list = []
         teams_created = user.leader_team_set.all()
-        for team in teams_created:
-            event = team.event
-            data = {
-                'team_name': team.name,
-                'key': team.key,
-                'event_name': event.name,
-                'max_team_size': event.max_team_size,
-                'min_team_size': event.min_team_size,
-                'members': [team.leader.name]
-            }
-            members = team.members.all()
-            for member in members:
-                data['members'].append(member.name)
-            list.append(data)
         teams_joined = user.team_set.all()
-        for team in teams_joined:
-            data = {
-                'team_name': team.name,
-                'key': team.key,
-                'event_name': event.name,
-                'max_team_size': event.max_team_size,
-                'min_team_size': event.min_team_size,
-                'given_team_size': team.max_count,
-                'members': [team.leader.name]
-            }
-            members = team.members.all()
-            for member in members:
-                data['members'].append(member.name)
-            list.append(data)
+        for teams in [teams_created, teams_joined]:
+            for team in teams:
+                event = team.event
+                data = {
+                    'team_name': team.name,
+                    'key': team.key,
+                    'event_name': event.name,
+                    'max_team_size': event.max_team_size,
+                    'min_team_size': event.min_team_size,
+                    'given_team_size': team.max_count,
+                    'amount_paid': team.amount_paid,
+                    'fees': event.fees_amount + (event.fees_per_member*team.max_count),
+                    'members': [team.leader.name],
+                }
+                members = team.members.all()
+                for member in members:
+                    data['members'].append(member.name)
+                list.append(data)
         return Response(list, status=status.HTTP_200_OK)
 
 class DeleteTeam(APIView):
