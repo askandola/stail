@@ -263,7 +263,8 @@ class CreateTeam(APIView):
         context = {
             'eventName': event.name,
             'teamName': name,
-            'teamKey': key
+            'teamKey': key,
+            'createTeam': True
         }
         if not user.is_thaparian:
             context['fees_required'] = True
@@ -320,7 +321,9 @@ class JoinTeam(APIView):
         team.members.add(user)
         team.save()
         context = {
-            'eventName': event.name
+            'eventName': event.name,
+            'teamName': team.name,
+            'joinTeam': True
         }
         if not team.amount_paid:
             context['fees_message'] = True

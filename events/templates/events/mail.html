@@ -145,7 +145,7 @@
     <div class="sat-logo logo-height"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/saturnalia.png" alt="image"></div>
     <div class="event-text">CONGRATULATIONS!!!</div>
     <div class="event-text2">You have successfully {% if fees_required %}applied to register{% else %}registered{% endif %} for "{{eventName}}"</div>
-    {% if teamName %}
+    {% if createTeam %}
     <div class="team-cred">
         Team "<B>{{teamName}}</B>" created successfully<br>
     </div>
@@ -170,6 +170,11 @@
     </div>
     <div class="team-cred2">
       Once paid, fill out <a href="https://verify.saturnaliatiet.com/">this form</a>, to confirm your payment and participation.
+    </div>
+    {% endif %}
+    {% if joinTeam %}
+    <div class="team-cred">
+      You have successfully joined team "{{teamName}}".
     </div>
     {% endif %}
     {% if fees_message %}
