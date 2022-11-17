@@ -315,6 +315,8 @@ class JoinTeam(APIView):
             return Response({'error': 'Team Full'}, status=status.HTTP_400_BAD_REQUEST)
         if team.is_thapar_team and not user.is_thaparian:
             return Response({'error': 'Not allowed. This team is of Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if not team.is_thapar_team and user.is_thaparian:
+            return Response({'error': 'Not allowed. This team is of Non Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         team.members.add(user)
         team.save()
         context = {
