@@ -292,8 +292,6 @@ class JoinTeam(APIView):
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
-        if team.is_thapar_team and not user.is_thaparian:
-            return Response({'error': 'Not allowed. This team is of Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         is_leader = user.team_set.filter(event=event).exists()
         is_member = user.leader_team_set.filter(event=event).exists()
         if is_leader or is_member:
@@ -315,6 +313,8 @@ class JoinTeam(APIView):
             return Response({'error': 'Team not found.'}, status=status.HTTP_404_NOT_FOUND)
         if team.members.count()+1==event.max_team_size or team.members.count()+1==team.max_count:
             return Response({'error': 'Team Full'}, status=status.HTTP_400_BAD_REQUEST)
+        if team.is_thapar_team and not user.is_thaparian:
+            return Response({'error': 'Not allowed. This team is of Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         team.members.add(user)
         team.save()
         context = {
