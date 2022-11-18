@@ -86,3 +86,10 @@ class UnverifiedUser(AbstractBaseUser):
 
     def __str__(self):
         return self.email
+
+class PendingEmail(models.Model):
+    email = models.EmailField()
+    slug = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.email

@@ -14,7 +14,7 @@ from rest_framework.authtoken.models import Token
 # from .serializers import UserSerializer 
 from .serializers import UserSerializer, UnverifiedUserSerializer
 # from .models import User, EmailVerification
-from .models import User, UnverifiedUser
+from .models import User, UnverifiedUser, PendingEmail
 
 import random, string
 
@@ -105,12 +105,14 @@ class RegisterView(APIView):
         #     verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
         # verification_entry = EmailVerification(user=user, slug=verification_slug)
         # verification_entry.save()
-        verification_url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
-        html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
-        mesg = strip_tags(html_message) #incase rendering fails
-        subj = "Thank you for registering for Saturnalia'22"
-        from_email= settings.EMAIL_HOST_USER
-        send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
+        # verification_url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/request7/verify/' + verification_slug
+        # html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
+        # mesg = strip_tags(html_message) #incase rendering fails
+        # subj = "Thank you for registering for Saturnalia'22"
+        # from_email= settings.EMAIL_HOST_USER
+        # send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
+        email_entry = PendingEmail(email=data['email'], slug=verification_slug)
+        email_entry.save()
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
 # def VerifyEmail(request, slug):

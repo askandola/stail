@@ -3,8 +3,7 @@ from import_export.resources import ModelResource
 from import_export.admin import ImportExportModelAdmin
 from import_export.fields import Field
 
-from .models import User 
-from .models import UnverifiedUser
+from .models import User, UnverifiedUser, PendingEmail
 
 # Register your models here.
 
@@ -56,6 +55,17 @@ class UnverifiedUserAdmin(ImportExportModelAdmin):
     list_per_page = 50
     search_fields = ('email', 'name', 'phone_no', 'roll_no', 'college', 'slug')
 
+class PendingEmailModelResource(ModelResource):
+    class Meta:
+        model = PendingEmail
+
+class PendingEmailAdmin(ImportExportModelAdmin):
+    resounrce_class = PendingEmailModelResource
+    list_display = ('id', 'email', 'slug')
+    list_per_page = 50
+    search_fields = ('email',)
+
 admin.site.register(User, UserModelAdmin)
 # admin.site.register(EmailVerification, EmailVerificationAdmin)
 admin.site.register(UnverifiedUser, UnverifiedUserAdmin)
+admin.site.register(PendingEmail, PendingEmailAdmin)
