@@ -89,7 +89,26 @@ class UnverifiedUser(AbstractBaseUser):
 
 class PendingEmail(models.Model):
     email = models.EmailField()
-    slug = models.CharField(max_length=50)
+
+    is_main = models.BooleanField(default=False)
+    slug = models.CharField(max_length=50, default='', blank=True)
+
+    is_event = models.BooleanField(default=False)
+    event = models.CharField(max_length=150, default='', blank=True)
+    individual_fees = models.IntegerField(default=0)
+
+    fees_required = models.BooleanField(default=False)
+
+    is_create_team = models.BooleanField(default=False)
+    team_name = models.CharField(max_length=150, default='', blank=True)
+    team_key = models.CharField(max_length=20, default='', blank=True)
+    team_amount = models.IntegerField(default=0)
+    members_count = models.IntegerField(default=0)
+    fees_per_member = models.IntegerField(default=0)
+
+    is_join_team = models.BooleanField(default=False)
+
+    qr_url = models.URLField(max_length=200, null=True, default=None, blank=True)
 
     def __str__(self):
         return self.email

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.http import StreamingHttpResponse
+from django.http import StreamingHttpResponse, HttpResponse
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import Http404
 from django.core.cache import cache
@@ -88,19 +88,19 @@ def streamEventRegstCSV(request, id):
         writer = csv.writer(pseudo_buffer)
         if event.is_team_event:
             teams = event.teams.all()
-            gen = (writer.writerow(['Team ID', 'Team Name', 'User ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
+            rows = [['Team ID', 'Team Name', 'User ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL', 'Fees Paid']]
             for team in teams:
-                leadergen = (writer.writerow([team.id, team.name, team.leader.id, team.leader.name, team.leader.email, team.leader.phone_no, team.leader.is_thaparian, team.leader.roll_no, team.leader.college, team.leader.id_proof]) for i in range(1))
+                rows.append([team.id, team.name, team.leader.id, team.leader.name, team.leader.email, team.leader.phone_no, team.leader.is_thaparian, team.leader.roll_no, team.leader.college, team.leader.id_proof, team.amount_paid])
                 members = team.members.all()
-                membersgen = (writer.writerow([team.id, team.name, user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof]) for user in members)
-                gen = itertools.chain(gen, leadergen, membersgen)
+                for user in members:
+                    rows.append([team.id, team.name, user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof, team.amount_paid])
         else:
-            users = event.users.all()
-            headGen = (writer.writerow(['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL']) for i in range(1))
-            dataGen = (writer.writerow([user.user.id, user.user.name, user.user.email, user.user.phone_no, user.user.is_thaparian, user.user.roll_no, user.user.college, user.user.id_proof]) for user in users)
-            gen = itertools.chain(headGen, dataGen)
+            entries = event.users.all()
+            rows = [['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL', 'Fees Paid']]
+            for entry in entries:
+                rows.append([entry.user.id, entry.user.name, entry.user.email, entry.user.phone_no, entry.user.is_thaparian, entry.user.roll_no, entry.user.college, entry.user.id_proof, entry.amount_paid])
         return StreamingHttpResponse(
-            gen,
+            (writer.writerow(row) for row in rows),
             content_type="text/csv",
             headers={
                 'Content-Disposition': f'attachment; filename="{event.name}_registrations.csv"'

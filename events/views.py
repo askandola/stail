@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from .models import Event, Team, EventUserTable
 from info.models import VerifyEndpoint
+from registrations.models import PendingEmail
 
 import random, string, os, qrcode, time, datetime
 
@@ -183,7 +184,8 @@ class EventRegisterView(APIView):
         if user.is_thaparian:
             regstrEntry.amount_paid = True
         regstrEntry.save()
-        context = {'eventName': event.name}
+        # context = {'eventName': event.name}
+        emailEntry = PendingEmail(email=user.email, is_event=True, event=event.name)
         if event.verification_required:
             endpoint = ''.join(random.choice(string.ascii_letters) for _ in range(100))
             while VerifyEndpoint.objects.filter(endpoint=endpoint).exists():
@@ -194,15 +196,19 @@ class EventRegisterView(APIView):
             url = ('https://' if request.is_secure() else 'http://') + request.META['HTTP_HOST'] + '/media/' + filename
             verificationEntry = VerifyEndpoint(endpoint=endpoint, event=event, user=user, url=url)
             verificationEntry.save()
-            context['qr_url'] = url
+            # context['qr_url'] = url
+            emailEntry.qr_url = url
         if not user.is_thaparian:
-            context['fees_required'] = True
-            context['individual_fees'] = event.fees_amount
-        subject = f"Thank you for registering for {event.name}"
-        html_message = render_to_string('events/mail.html', context)
-        message = strip_tags(html_message)
-        from_email = settings.EMAIL_HOST_USER
-        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+            # context['fees_required'] = True
+            # context['individual_fees'] = event.fees_amount
+            emailEntry.fees_required = True
+            emailEntry.individual_fees = event.fees_amount
+        # subject = f"Thank you for registering for {event.name}"
+        # html_message = render_to_string('events/mail.html', context)
+        # message = strip_tags(html_message)
+        # from_email = settings.EMAIL_HOST_USER
+        # send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+        emailEntry.save()
         return Response({'status': 'success'}, status=status.HTTP_200_OK)
 
 def getRandomKey():
@@ -260,23 +266,30 @@ class CreateTeam(APIView):
         else:
             team.is_thapar_team = False
         team.save()
-        context = {
-            'eventName': event.name,
-            'teamName': name,
-            'teamKey': key,
-            'createTeam': True
-        }
+        # context = {
+        #     'eventName': event.name,
+        #     'teamName': name,
+        #     'teamKey': key,
+        #     'createTeam': True
+        # }
+        emailEntry = PendingEmail(email=user.email, is_event=True, is_create_team=True, event=event.name, team_name=name, team_key = key)
         if not user.is_thaparian:
-            context['fees_required'] = True
-            context['team_amount'] = event.fees_amount
-            context['fees_per_member'] = event.fees_per_member
-            context['members_count'] = team.max_count
-            context['total_fees'] = event.fees_amount + (event.fees_per_member*team.max_count)
-        subject = f"Thank you for registering for {event.name}"
-        html_message = render_to_string('events/mail.html', context)
-        message = strip_tags(html_message)
-        from_email = settings.EMAIL_HOST_USER
-        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+            # context['fees_required'] = True
+            # context['team_amount'] = event.fees_amount
+            # context['fees_per_member'] = event.fees_per_member
+            # context['members_count'] = team.max_count
+            # context['total_fees'] = event.fees_amount + (event.fees_per_member*team.max_count)
+            emailEntry.fees_required = True
+            emailEntry.team_amount = event.fees_amount
+            emailEntry.fees_per_member = event.fees_per_member
+            emailEntry.members_count = team.max_count
+            # emailEntry.total_fees = event.fees_amount + (event.fees_per_member*team.max_count)
+        # subject = f"Thank you for registering for {event.name}"
+        # html_message = render_to_string('events/mail.html', context)
+        # message = strip_tags(html_message)
+        # from_email = settings.EMAIL_HOST_USER
+        # send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+        emailEntry.save()
         return Response({'key': key, 'name': name}, status=status.HTTP_201_CREATED)
 
 class JoinTeam(APIView):
@@ -320,19 +333,23 @@ class JoinTeam(APIView):
             return Response({'error': 'Not allowed. This team is of Non Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
         team.members.add(user)
         team.save()
-        context = {
-            'eventName': event.name,
-            'teamName': team.name,
-            'joinTeam': True
-        }
+        # context = {
+        #     'eventName': event.name,
+        #     'teamName': team.name,
+        #     'joinTeam': True
+        # }
+        emailEntry = PendingEmail(email=user.email, is_event=True, is_join_team=True, event=event.name, team_name=team.name)
         if not team.amount_paid:
-            context['fees_message'] = True
-            context['fees_required'] = True
-        subject = f"Thank you for registering for {event.name}"
-        html_message = render_to_string('events/mail.html', context)
-        message = strip_tags(html_message)
-        from_email = settings.EMAIL_HOST_USER
-        send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+            # context['fees_message'] = True
+            # context['fees_required'] = True
+            # emailEntry.fees_message = True
+            emailEntry.fees_required = True
+        # subject = f"Thank you for registering for {event.name}"
+        # html_message = render_to_string('events/mail.html', context)
+        # message = strip_tags(html_message)
+        # from_email = settings.EMAIL_HOST_USER
+        # send_mail(subject, message, from_email, [user.email], html_message=html_message, fail_silently=False)
+        emailEntry.save()
         return Response({'status': 'success'}, status=status.HTTP_200_OK)
 
 

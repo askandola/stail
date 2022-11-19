@@ -151,7 +151,7 @@
     </div>
     <div class="team-cred2">Your team code is "<b>{{teamKey}}</b>".</div>
     {% endif %}
-    {% if total_fees or individual_fees %}
+    {% if fees_message %}
     <div class="team-cred2">
       To register for this event, you have to pay a total amount of {% if individual_fees %}Rs.{{individual_fees}} only.{% else %}Rs.{{total_fees}} only(Rs.{{team_amount}} + {{members_count}}*Rs.{{fees_per_member}}).{% endif %}
     </div>
@@ -177,7 +177,7 @@
       You have successfully joined team "{{teamName}}".
     </div>
     {% endif %}
-    {% if fees_message %}
+    {% if fees_reminder %}
     <div class="team-cred2">
       Contact your team leader to pay the requisite fees for participation in the event. Please ignore if already paid.
     </div>

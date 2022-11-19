@@ -111,7 +111,7 @@ class RegisterView(APIView):
         # subj = "Thank you for registering for Saturnalia'22"
         # from_email= settings.EMAIL_HOST_USER
         # send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
-        email_entry = PendingEmail(email=data['email'], slug=verification_slug)
+        email_entry = PendingEmail(email=data['email'], slug=verification_slug, is_main=True)
         email_entry.save()
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 
