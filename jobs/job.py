@@ -13,12 +13,7 @@ def send_verification_emails():
     connection.open()
     from_email= settings.EMAIL_HOST_USER
     for entry in entries:
-        if entry.is_main:
-            verification_url = 'https://api.saturnaliatiet.com/request7/verify/' + entry.slug
-            html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
-            mesg = strip_tags(html_message)
-            subj = "Thank you for registering for Saturnalia'22"
-        elif entry.is_event:
+        if entry.is_event:
             context = {'eventName': entry.event}
             if entry.is_create_team:
                 context['createTeam'] = True
@@ -46,6 +41,11 @@ def send_verification_emails():
             subj = f"Thank you for registering for {entry.event}"
             html_message = render_to_string('events/mail.html', context)
             mesg = strip_tags(html_message)
+        else:
+            verification_url = 'https://api.saturnaliatiet.com/request7/verify/' + entry.slug
+            html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
+            mesg = strip_tags(html_message)
+            subj = "Thank you for registering for Saturnalia'22"
         email = EmailMultiAlternatives(subj, mesg, from_email, [entry.email])
         email.attach_alternative(html_message, 'text/html')
         connection.send_messages([email])
