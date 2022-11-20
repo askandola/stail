@@ -52,10 +52,11 @@ def DashboardView(request):
     events_queryset = Event.objects.all()
     # registrations = User.objects.filter(is_staff=False, is_verified=True).count()
     registrations = User.objects.filter(is_staff=False).count()
+    nonThaparRegistrations = User.objects.filter(is_staff=False, is_thaparian=False).count()
     # pending_verifications = EmailVerification.objects.count()
     pending_verifications = UnverifiedUser.objects.count()
     total_visits = Visit.objects.first()
-    unread_queries = Query.objects.filter(is_read=False).count()
+    # unread_queries = Query.objects.filter(is_read=False).count()
     if total_visits is None:
         total_visits = Visit()
         total_visits.save()
@@ -69,7 +70,8 @@ def DashboardView(request):
         'registrations': registrations,
         'eventsCount': len(events),
         'pendingVerification': pending_verifications,
-        'unreadQueries': unread_queries,
+        'nonThaparRegistrations': nonThaparRegistrations,
+        # 'unreadQueries': unread_queries,
     }
     return render(request, 'info/dashboard.html', context=context)
 

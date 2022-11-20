@@ -92,6 +92,7 @@ class PendingEmail(models.Model):
 
     is_main = models.BooleanField(default=False)
     slug = models.CharField(max_length=50, default='', blank=True)
+    main_vrf_skip = models.BooleanField(default=False)
 
     is_event = models.BooleanField(default=False)
     event = models.CharField(max_length=150, default='', blank=True)

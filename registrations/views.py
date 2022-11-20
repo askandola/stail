@@ -98,7 +98,17 @@ class RegisterView(APIView):
             # if wrong_otp:
             #     errors['otp'] = ['Wrong OTP.']
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
-        serializer.save()
+        email_entry = PendingEmail(email=data['email'], slug=verification_slug, is_main=True)
+        if data.get('is_thaparian', False):
+            serializer.save()
+        else:
+            serializer = UserSerializer(data=data)
+            if not serializer.is_valid():
+                return Response({'error': 'OOPS! Something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+            user = serializer.save()
+            user.set_password(data['password'])
+            user.save()
+            email_entry.main_vrf_skip = True
         # user = User.objects.filter(email=data['email']).first()
         # verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
         # while EmailVerification.objects.filter(slug=verification_slug).exists():
@@ -111,7 +121,6 @@ class RegisterView(APIView):
         # subj = "Thank you for registering for Saturnalia'22"
         # from_email= settings.EMAIL_HOST_USER
         # send_mail(subj, mesg, from_email, [data['email'],],html_message=html_message, fail_silently=False)
-        email_entry = PendingEmail(email=data['email'], slug=verification_slug, is_main=True)
         email_entry.save()
         return Response({'status': 'success'}, status=status.HTTP_201_CREATED)
 

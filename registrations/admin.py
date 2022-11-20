@@ -29,7 +29,7 @@ class UserModelAdmin(ImportExportModelAdmin):
     list_display = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college', 'events_count')
     list_display_links = ('id', 'email')
     list_filter = ('is_thaparian',)
-    list_per_page = 50
+    list_per_page = 100
     search_fields = ('email', 'name', 'phone_no', 'roll_no', 'college')
 
     def events_count(self, item):
@@ -48,11 +48,13 @@ class UserModelAdmin(ImportExportModelAdmin):
 class UnverifiedUserResource(ModelResource):
     class Meta:
         model = UnverifiedUser
+        fields = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college')
+        export_order = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college')
 
 class UnverifiedUserAdmin(ImportExportModelAdmin):
     resource_class = UnverifiedUserResource
     list_display = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college', 'slug')
-    list_per_page = 50
+    list_per_page = 100
     search_fields = ('email', 'name', 'phone_no', 'roll_no', 'college', 'slug')
 
 class PendingEmailModelResource(ModelResource):
@@ -60,9 +62,9 @@ class PendingEmailModelResource(ModelResource):
         model = PendingEmail
 
 class PendingEmailAdmin(ImportExportModelAdmin):
-    resounrce_class = PendingEmailModelResource
-    list_display = ('id', 'email', 'slug')
-    list_per_page = 50
+    resource_class = PendingEmailModelResource
+    list_display = ('id', 'email', 'is_main', 'is_event', 'is_create_team', 'is_join_team')
+    list_per_page = 100
     search_fields = ('email',)
 
 admin.site.register(User, UserModelAdmin)

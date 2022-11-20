@@ -43,7 +43,12 @@ def send_verification_emails():
             mesg = strip_tags(html_message)
         else:
             verification_url = 'https://api.saturnaliatiet.com/request7/verify/' + entry.slug
-            html_message = render_to_string('registrations/reg.html', {'verification_url': verification_url})
+            context = {
+                'verification_url': verification_url
+            }
+            if entry.main_vrf_skip:
+                context['skip_verification'] = True
+            html_message = render_to_string('registrations/reg.html', context)
             mesg = strip_tags(html_message)
             subj = "Thank you for registering for Saturnalia'22"
         email = EmailMultiAlternatives(subj, mesg, from_email, [entry.email])

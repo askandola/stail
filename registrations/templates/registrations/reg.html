@@ -109,7 +109,9 @@
      <div class="sat-logo logo-height"><img src="https://raw.githubusercontent.com/kandola-as/probable-octo-spork/main/saturnalia.png" alt="image"></div> 
     <div class="event-text">CONGRATULATIONS!!!</div>
     <div class="event-text2">You have successfully registered for "Saturnalia"</div>
-    <div class="event-text2">To verify your email, <a href="{{verification_url}}">click here.</a></div>
+    {% if not skip_verification %}
+      <div class="event-text2">To verify your email, <a href="{{verification_url}}">click here.</a></div>
+    {% endif %}
     <div style="margin-bottom:80px;"></div>
     <hr> 
     <footer id="dk-footer">
