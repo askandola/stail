@@ -62,6 +62,7 @@ class EventsListView(APIView):
             data['id'] = event.id
             data['name'] = event.name
             data['description'] = event.description
+            data['redirect_link'] = event.reg_redirect_link
             data['image'] = event.image_url
             data['date'] = event.date
             data['time'] = event.time
@@ -114,6 +115,7 @@ class EventView(APIView):
         data['id'] = event.id
         data['name'] = event.name
         data['description'] = event.description
+        data['redirect_link'] = event.reg_redirect_link
         data['image'] = event.image_url
         data['date'] = event.date
         data['time'] = event.time
