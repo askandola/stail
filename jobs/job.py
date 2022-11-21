@@ -97,3 +97,4 @@ def move_to_verified():
         serializer = UserSerializer(data=data)
         if serializer.is_valid():
             serializer.save()
+            user.delete()

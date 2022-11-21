@@ -171,6 +171,8 @@ class EventRegisterView(APIView):
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if event.reg_redirect_link!=None:
+            return Response({'error': 'Not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         if user.event_registrations.filter(event=event).exists():
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
         if user.gender=='M':
@@ -229,6 +231,8 @@ class CreateTeam(APIView):
             return Response({'error': 'Not a team event.'}, status=status.HTTP_400_BAD_REQUEST)
         if not event.is_active or (event.deadline!=None and event.deadline<timezone.now()):
             return Response({'error': 'Registrations closed.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if event.reg_redirect_link!=None:
+            return Response({'error': 'Not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         name = request.data.get('name')
         if name is None:
             return Response({'error': 'Team Name required.'}, status=status.HTTP_400_BAD_REQUEST)
@@ -305,6 +309,8 @@ class JoinTeam(APIView):
             return Response({'error': 'Not a team event.'}, status=status.HTTP_400_BAD_REQUEST)
         if not event.is_active or (event.deadline!=None and event.deadline<timezone.now()):
             return Response({'error': 'Registrations closed.'}, status=status.HTTP_401_UNAUTHORIZED)
+        if event.reg_redirect_link!=None:
+            return Response({'error': 'Not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
