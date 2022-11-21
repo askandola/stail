@@ -5,7 +5,9 @@ from django.core import mail
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from registrations.models import PendingEmail, UnverifiedUser
+from events.models import Team, EventUserTable
 from info.views import update_db_from_cache
+from registrations.serializers import UserSerializer
 
 def send_verification_emails():
     entries = PendingEmail.objects.all()
@@ -64,3 +66,32 @@ def add_all_unverified_to_pending_mails():
         entry = PendingEmail(email=user.email, is_main=True, slug=user.slug)
         entry.save()
     update_db_from_cache()
+
+def reminderForPayment():
+    teams = Team.objects.filter(amount_paid=False).all()
+    for team in teams:
+        email = PendingEmail(email=team.leader.email)
+        email.is_event = True
+        email.event = team.event.name
+        email.fees_required = True
+        email.is_create_team = True
+        email.team_name = team.name
+        email.team_key = team.key
+        email.team_amount = team.event.fees_amount
+        email.fees_per_member = team.event.fees_per_member
+        email.members_count = team.max_count
+        email.save()
+    users = EventUserTable.objects.filter(amount_paid=False)
+    for user in users:
+        email = PendingEmail(email=user.user.email)
+        email.is_event = True
+        email.event = user.event.name
+        email.fees_required = True
+        email.individual_fees = user.event.fees_amount
+        email.save()
+
+def move_to_verified():
+    users = UnverifiedUser.objects.all()
+    for user in users:
+        serializer = UserSerializer(user)
+        serializer.save()

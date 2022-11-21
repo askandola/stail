@@ -99,16 +99,16 @@ class RegisterView(APIView):
             #     errors['otp'] = ['Wrong OTP.']
             return Response({'errors': errors}, status=status.HTTP_400_BAD_REQUEST)
         email_entry = PendingEmail(email=data['email'], slug=verification_slug, is_main=True)
-        if data.get('is_thaparian', False):
-            serializer.save()
-        else:
-            serializer = UserSerializer(data=data)
-            if not serializer.is_valid():
-                return Response({'error': 'OOPS! Something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
-            user = serializer.save()
-            user.set_password(data['password'])
-            user.save()
-            email_entry.main_vrf_skip = True
+        # if data.get('is_thaparian', False):
+        #     serializer.save()
+        # else:
+        serializer = UserSerializer(data=data)
+        if not serializer.is_valid():
+            return Response({'error': 'OOPS! Something went wrong.'}, status=status.HTTP_400_BAD_REQUEST)
+        user = serializer.save()
+        user.set_password(data['password'])
+        user.save()
+        email_entry.main_vrf_skip = True
         # user = User.objects.filter(email=data['email']).first()
         # verification_slug = ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(50))
         # while EmailVerification.objects.filter(slug=verification_slug).exists():
