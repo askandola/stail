@@ -93,5 +93,7 @@ def reminderForPayment():
 def move_to_verified():
     users = UnverifiedUser.objects.all()
     for user in users:
-        serializer = UserSerializer(user)
-        serializer.save()
+        data = UserSerializer(user).data.copy()
+        serializer = UserSerializer(data=data)
+        if serializer.is_valid():
+            serializer.save()
