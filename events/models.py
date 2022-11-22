@@ -54,6 +54,7 @@ class Event(models.Model):
 
     deadline = models.DateTimeField(blank=True, null=True, default=None)
     is_active = models.BooleanField(blank=True, default=True)
+    thapar_auditions_done = models.BooleanField(default=False)
 
     fees_amount = models.IntegerField(default=0, blank=True)
     fees_per_member = models.IntegerField(default=0, blank=True)

@@ -175,6 +175,8 @@ class EventRegisterView(APIView):
             return Response({'error': 'Not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         if user.event_registrations.filter(event=event).exists():
             return Response({'error': 'User already registered.'}, status=status.HTTP_400_BAD_REQUEST)
+        if user.is_thaparian and event.thapar_auditions_done:
+            return Response({'error': 'Auditions for Thapar students are over.'}, status=status.HTTP_400_BAD_REQUEST)
         if user.gender=='M':
             if event.max_male_count!=None and event.curr_male_count>=event.max_male_count:
                 return Response({'error': 'Registrations closed'}, status=status.HTTP_400_BAD_REQUEST)
@@ -248,7 +250,7 @@ class CreateTeam(APIView):
         user = request.user
         if event.intra_thapar and not user.is_thaparian:
             return Response({'error': 'Not allowed. This event is for Thapar Students only.'}, status=status.HTTP_401_UNAUTHORIZED)
-        if user.is_thaparian and event.type=='CP' and event.category=='CL':
+        if user.is_thaparian and event.thapar_auditions_done:
             return Response({'error': 'Auditions for Thapar students are over.'}, status=status.HTTP_400_BAD_REQUEST)
         is_leader = user.team_set.filter(event=event).exists()
         is_member = user.leader_team_set.filter(event=event).exists()
