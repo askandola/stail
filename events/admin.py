@@ -29,7 +29,7 @@ class TeamAdmin(ImportExportModelAdmin):
     list_display = ['id', 'name', 'key', 'event', 'leader']
     list_display_links = ['id', 'name']
     search_fields = ['leader__name', 'leader__email', 'event__name', 'name']
-    list_filter = ['event']
+    list_filter = ['event', 'is_thapar_team']
     list_per_page = 100
 
 class RuleResource(ModelResource):
@@ -44,9 +44,9 @@ class RuleAdmin(ImportExportModelAdmin):
 
 class EventUserTableAdmin(admin.ModelAdmin):
     list_display = ['id', 'event', 'user']
-    list_filter = ['event']
+    list_filter = ['event', 'user__is_thaparian']
     list_per_page = 100
-    search_field = ['evant__name', 'user__email']
+    search_field = ['event__name', 'user__email']
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Team, TeamAdmin)
