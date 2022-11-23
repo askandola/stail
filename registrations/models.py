@@ -106,6 +106,7 @@ class PendingEmail(models.Model):
     team_amount = models.IntegerField(default=0)
     members_count = models.IntegerField(default=0)
     fees_per_member = models.IntegerField(default=0)
+    ignore_message = models.BooleanField(default=False)
 
     is_join_team = models.BooleanField(default=False)
 

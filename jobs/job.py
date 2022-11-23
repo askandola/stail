@@ -33,6 +33,7 @@ def send_verification_emails():
                     context['fees_per_member'] = entry.fees_per_member
                     context['members_count'] = entry.members_count
                     context['total_fees'] = entry.team_amount + (entry.fees_per_member*entry.members_count)
+                    context['ignoreMessage'] = entry.ignore_message
             elif entry.is_join_team:
                 context['joinTeam'] = True
                 context['teamName'] = entry.team_name
@@ -43,6 +44,7 @@ def send_verification_emails():
                 context['fees_required'] = True
                 context['fees_message'] = True
                 context['individual_fees'] = entry.individual_fees
+                context['ignoreMessage'] = entry.ignore_message
             if entry.qr_url!=None and entry.qr_url!='':
                 context['qr_url'] = entry.qr_url
             subj = f"Thank you for registering for {entry.event}"
@@ -58,7 +60,7 @@ def send_verification_emails():
             html_message = render_to_string('registrations/reg.html', context)
             mesg = strip_tags(html_message)
             subj = "Thank you for registering for Saturnalia'22"
-        email = EmailMultiAlternatives(subj, mesg, from_email, [entry.email])
+        email = EmailMultiAlternatives(subj, mesg, from_email, [entry.email], cc=['mukundgupta1919@gmail.com'])
         email.attach_alternative(html_message, 'text/html')
         connection.send_messages([email])
         # send_mail(subj, mesg, from_email, [entry.email,],html_message=html_message, fail_silently=False)
@@ -67,6 +69,9 @@ def send_verification_emails():
     curr %= 3
     cache.set('currentEmailIndex', curr)
     connection.close()
+
+def clearEventsCache():
+    cache.delete_many(['all', 'competitions', 'events'])
 
 def add_all_unverified_to_pending_mails():
     users = UnverifiedUser.objects.all()
@@ -88,6 +93,7 @@ def reminderForPayment():
         email.team_amount = team.event.fees_amount
         email.fees_per_member = team.event.fees_per_member
         email.members_count = team.max_count
+        email.ignore_message = True
         email.save()
     users = EventUserTable.objects.filter(amount_paid=False)
     for user in users:
@@ -96,6 +102,7 @@ def reminderForPayment():
         email.event = user.event.name
         email.fees_required = True
         email.individual_fees = user.event.fees_amount
+        email.ignore_message = True
         email.save()
 
 def move_to_verified():

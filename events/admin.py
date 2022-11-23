@@ -28,6 +28,7 @@ class TeamAdmin(ImportExportModelAdmin):
     resource_class = TeamResource
     list_display = ['id', 'name', 'key', 'event', 'leader']
     list_display_links = ['id', 'name']
+    search_fields = ['leader__name', 'leader__email', 'event__name', 'name']
     list_filter = ['event']
     list_per_page = 100
 

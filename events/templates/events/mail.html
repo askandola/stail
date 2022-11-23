@@ -157,6 +157,8 @@
     </div>
     <div class="team-cred2">
       This includes Accomodation and entry to Cultural/Star Nights.
+      <br>
+      {% if individual_fees %}Rs.{{individual_fees}} is the fee for accommodation and food for three days.{% else %}Rs.{{team_amount}} is the team registration fee, and Rs.{{fees_per_member}} is the fee for accommodation and food per participant.{% endif %}
     </div>
     <div class="team-cred2">
       Entry fees should be transferred via RTGS/ONLINE TRANSFER.
@@ -188,6 +190,11 @@
         You have to take this email to event venue for validation purpose
     </div>
     {% endif %}
+    {% if ignoreMessage %}
+    <div class="team-cred2">
+      In case you have already received this mail, please ignore.
+    </div>
+    {% else %}
      <div style="margin-top:100px;"></div>
      <hr>
      <footer id="dk-footer">

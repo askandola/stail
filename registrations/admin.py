@@ -26,14 +26,18 @@ class UserResource(ModelResource):
 class UserModelAdmin(ImportExportModelAdmin):
     resource_class = UserResource
 
-    list_display = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college', 'events_count')
+    list_display = ('id', 'email', 'name', 'phone_no', 'is_thaparian', 'roll_no', 'college', 'events_name')
     list_display_links = ('id', 'email')
     list_filter = ('is_thaparian',)
     list_per_page = 100
     search_fields = ('email', 'name', 'phone_no', 'roll_no', 'college')
 
-    def events_count(self, item):
-        return item.event_registrations.count()+item.leader_team_set.count()+item.team_set.count()
+    def events_name(self, user):
+        evs = ""
+        for queryset in [user.event_registrations.all(), user.leader_team_set.all(), user.team_set.all()]:
+            for event in queryset:
+                evs = evs + event.name + ", "
+        return evs
 
 # class EmailVerificationResource(ModelResource):
 #     class Meta:
