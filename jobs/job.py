@@ -1,6 +1,5 @@
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
-from django.core.mail import send_mail
 from django.core import mail
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
@@ -8,12 +7,18 @@ from registrations.models import PendingEmail, UnverifiedUser
 from events.models import Team, EventUserTable
 from info.views import update_db_from_cache
 from registrations.serializers import UserSerializer
+from django.core.cache import cache
+
+EMAIL_HOST_USERS = [settings.EMAIL_HOST_USER1, settings.EMAIL_HOST_USER2, settings.EMAIL_HOST_USER3]
+EMAIL_HOST_PASSWORDS = [settings.EMAIL_HOST_PASSWORD1, settings.EMAIL_HOST_PASSWORD2, settings.EMAIL_HOST_PASSWORD3]
 
 def send_verification_emails():
+    curr = cache.get('currentEmailIndex', 0)
     entries = PendingEmail.objects.all()
-    connection = mail.get_connection(fail_silently=False)
+    print(entries, curr)
+    connection = mail.get_connection(username=EMAIL_HOST_USERS[curr], password=EMAIL_HOST_PASSWORDS[curr], fail_silently=False)
     connection.open()
-    from_email= settings.EMAIL_HOST_USER
+    from_email= EMAIL_HOST_USERS[curr]
     for entry in entries:
         if entry.is_event:
             context = {'eventName': entry.event}
@@ -58,6 +63,9 @@ def send_verification_emails():
         connection.send_messages([email])
         # send_mail(subj, mesg, from_email, [entry.email,],html_message=html_message, fail_silently=False)
         entry.delete()
+    curr += 1
+    curr %= 3
+    cache.set('currentEmailIndex', curr)
     connection.close()
 
 def add_all_unverified_to_pending_mails():

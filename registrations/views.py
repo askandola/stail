@@ -175,8 +175,10 @@ class reset_request(APIView):
             html_message = render_to_string('registrations/otp.html', {'otp': otp})
             message = strip_tags(html_message) #incase rendering fails
             subj = "Password Reset OTP for Saturnalia'22"
-            from_email= settings.EMAIL_HOST_USER
-            send_mail(subj, message, from_email, [data['email'],],html_message=html_message, fail_silently=False)
+            from_email= settings.FP_EMAIL_HOST_USER
+            auth_user = settings.FP_EMAIL_HOST_USER
+            auth_password = settings.FP_EMAIL_HOST_PASSWORD
+            send_mail(subj, message, from_email, [data['email'],],html_message=html_message, fail_silently=False, auth_user=auth_user, auth_password=auth_password)
             message = {
                 'status': 'Success'}
             return Response(message, status=status.HTTP_200_OK)
