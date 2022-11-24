@@ -35,8 +35,8 @@ class UserModelAdmin(ImportExportModelAdmin):
     def events_name(self, user):
         evs = ""
         for queryset in [user.event_registrations.all(), user.leader_team_set.all(), user.team_set.all()]:
-            for event in queryset:
-                evs = evs + event.name + ", "
+            for item in queryset:
+                evs = evs + item.event.name + ", "
         return evs
 
 # class EmailVerificationResource(ModelResource):

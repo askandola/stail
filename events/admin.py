@@ -46,7 +46,7 @@ class EventUserTableAdmin(admin.ModelAdmin):
     list_display = ['id', 'event', 'user']
     list_filter = ['event', 'user__is_thaparian']
     list_per_page = 100
-    search_field = ['event__name', 'user__email']
+    search_fields = ['event__name', 'user__email']
 
 admin.site.register(Event, EventAdmin)
 admin.site.register(Team, TeamAdmin)
