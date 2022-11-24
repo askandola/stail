@@ -123,7 +123,8 @@ def streamEventFinalRegstCSV(request, id):
             teams = event.teams.all()
             rows = [['Team ID', 'Team Name', 'User ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL', 'Fees Paid']]
             for team in teams:
-                if team.max_count<event.min_team_size:
+                if int(team.max_count)<int(event.min_team_size):
+                    print('done')
                     continue
                 rows.append([team.id, team.name, team.leader.id, team.leader.name, team.leader.email, team.leader.phone_no, team.leader.is_thaparian, team.leader.roll_no, team.leader.college, team.leader.id_proof, team.amount_paid])
                 members = team.members.all()
