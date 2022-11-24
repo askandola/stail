@@ -80,7 +80,8 @@
                             <th scope="col">#</th>
                             <th scope="col">Name</th>
                             {% comment %} <th scope="col">Visits</th> {% endcomment %}
-                            <th scope="col">Registrations</th>
+                            <th scope="col">Raw Registrations</th>
+                            <th scope="col">Final Registrations</th>
                             <th scope="col" style="width: 200px;">CSV file</th>
                         </tr>
                     </thead>
@@ -93,6 +94,12 @@
                             <td>{{event.registrations}}</td>
                             <td>
                                 <form action="{% url 'getEventRegistrationsList' event.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-link"><i class="fa fa-download f-left"></i></a>
+                                </form>
+                            </td>
+                            <td>
+                                <form action="{% url 'getEventFinalRegistrationsList' event.id %}" method="POST">
                                     {% csrf_token %}
                                     <button type="submit" class="btn btn-link"><i class="fa fa-download f-left"></i></a>
                                 </form>

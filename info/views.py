@@ -105,7 +105,40 @@ def streamEventRegstCSV(request, id):
             (writer.writerow(row) for row in rows),
             content_type="text/csv",
             headers={
-                'Content-Disposition': f'attachment; filename="{event.name}_registrations.csv"'
+                'Content-Disposition': f'attachment; filename="{event.name}_raw_registrations.csv"'
+            },
+        )
+    raise Http404
+
+
+@staff_member_required
+def streamEventFinalRegstCSV(request, id):
+    if request.method=='POST':
+        event = Event.objects.filter(id=id).first()
+        if event is None:
+            raise Http404
+        pseudo_buffer = Echo()
+        writer = csv.writer(pseudo_buffer)
+        if event.is_team_event:
+            teams = event.teams.all()
+            rows = [['Team ID', 'Team Name', 'User ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL', 'Fees Paid']]
+            for team in teams:
+                if team.max_count<event.min_team_size:
+                    continue
+                rows.append([team.id, team.name, team.leader.id, team.leader.name, team.leader.email, team.leader.phone_no, team.leader.is_thaparian, team.leader.roll_no, team.leader.college, team.leader.id_proof, team.amount_paid])
+                members = team.members.all()
+                for user in members:
+                    rows.append([team.id, team.name, user.id, user.name, user.email, user.phone_no, user.is_thaparian, user.roll_no, user.college, user.id_proof, team.amount_paid])
+        else:
+            entries = event.users.all()
+            rows = [['ID', 'Name', 'Email ID', 'Phone Number', 'Thapar Student', 'Roll Number', 'College Name', 'ID Proof URL', 'Fees Paid']]
+            for entry in entries:
+                rows.append([entry.user.id, entry.user.name, entry.user.email, entry.user.phone_no, entry.user.is_thaparian, entry.user.roll_no, entry.user.college, entry.user.id_proof, entry.amount_paid])
+        return StreamingHttpResponse(
+            (writer.writerow(row) for row in rows),
+            content_type="text/csv",
+            headers={
+                'Content-Disposition': f'attachment; filename="{event.name}_complete_registrations.csv"'
             },
         )
     raise Http404
