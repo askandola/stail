@@ -111,6 +111,31 @@ def streamEventRegstCSV(request, id):
     raise Http404
 
 
+@staff_member_required
+def streamOutsideEventRegstCSV(request):
+    pseudo_buffer = Echo()
+    writer = csv.writer(pseudo_buffer)
+    events = Event.objects.all()
+    rows = [['College', 'Event', 'Team Size', 'Fee amount required', 'Fee status', 'Team name', 'Leader name', 'Phone', 'Email', 'Amount Paid', 'Screenshot Link']]
+    for event in events:
+        rows.append(['','','','','','','','','','',''])
+        if event.is_team_event:
+            teams = event.teams.filter(is_thapar_team=False).all()
+            for team in teams:
+                rows.append([team.leader.college, event.name, team.max_count, event.fees_amount+(event.fees_per_member*team.max_count), team.amount_paid, team.name, team.leader.name, team.leader.phone_no, team.leader.email, team.paid_amount_value, team.screenshot_link])
+        else:
+            entries = event.users.filter(user__is_thaparian=False).all()
+            for entry in entries:
+                rows.append([entry.user.college, event.name, 1, event.fees_amount, entry.amount_paid, entry.user.name, entry.user.name, entry.user.phone_no, entry.user.email, entry.paid_amount_value, entry.screenshot_link])
+    return StreamingHttpResponse(
+        (writer.writerow(row) for row in rows),
+        content_type="text/csv",
+        headers={
+            'Content-Disposition': f'attachment; filename="outside_thapar_registrations.csv"'
+        },
+    )
+
+
 class VerifyRegistrationView(APIView):
     def get(self, request, slug):
         entry = VerifyEndpoint.objects.filter(endpoint=slug).first()

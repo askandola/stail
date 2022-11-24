@@ -31,8 +31,12 @@ def send_verification_emails():
                     context['fees_message'] = True
                     context['team_amount'] = entry.team_amount
                     context['fees_per_member'] = entry.fees_per_member
-                    context['members_count'] = entry.members_count
-                    context['total_fees'] = entry.team_amount + (entry.fees_per_member*entry.members_count)
+                    if context['eventName']=='Battle of the Bands':
+                        context['members_count'] = entry.members_count if entry.members.count>8 else 0
+                        context['total_fees'] = entry.team_amount + (entry.fees_per_member*context['members_count'])
+                    else:
+                        context['members_count'] = entry.members_count
+                        context['total_fees'] = entry.team_amount + (entry.fees_per_member*entry.members_count)
                     context['ignoreMessage'] = entry.ignore_message
             elif entry.is_join_team:
                 context['joinTeam'] = True

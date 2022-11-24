@@ -107,6 +107,8 @@ class Team(models.Model):
     members = models.ManyToManyField(User, blank=True)
     max_count = models.IntegerField(default=1)
     amount_paid = models.BooleanField(default=False)
+    paid_amount_value = models.IntegerField(default=0)
+    screenshot_link = models.URLField(null=True, default=None, blank=True)
     is_thapar_team = models.BooleanField(default=True)
     def __str__(self):
         return self.name+'_'+self.event.name
@@ -115,6 +117,8 @@ class EventUserTable(models.Model):
     event = models.ForeignKey(Event, related_name='users', on_delete=models.CASCADE)
     user = models.ForeignKey(User, related_name='event_registrations', on_delete=models.CASCADE)
     amount_paid = models.BooleanField(default=False)
+    paid_amount_value = models.IntegerField(default=0)
+    screenshot_link = models.URLField(null=True, default=None, blank=True)
 
     def __str__(self):
         return self.user.email+'_'+self.event.name
