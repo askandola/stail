@@ -127,6 +127,10 @@ def streamOutsideEventRegstCSV(request):
             entries = event.users.filter(user__is_thaparian=False).all()
             for entry in entries:
                 rows.append([entry.user.college, event.name, 1, event.fees_amount, entry.amount_paid, entry.user.name, entry.user.name, entry.user.phone_no, entry.user.email, entry.paid_amount_value, entry.screenshot_link])
+        if event.name=='Robo-Soccer':
+            entries = event.users.filter(user__is_thaparian=False).all()
+            for entry in entries:
+                rows.append([entry.user.college, event.name, 1, event.fees_amount, entry.amount_paid, entry.user.name, entry.user.name, entry.user.phone_no, entry.user.email, entry.paid_amount_value, entry.screenshot_link])
     return StreamingHttpResponse(
         (writer.writerow(row) for row in rows),
         content_type="text/csv",
