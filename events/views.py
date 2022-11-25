@@ -309,8 +309,8 @@ class JoinTeam(APIView):
             return Response({'error': 'Event not found'}, status=status.HTTP_404_NOT_FOUND)
         if not event.is_team_event:
             return Response({'error': 'Not a team event.'}, status=status.HTTP_400_BAD_REQUEST)
-        if not event.is_active or (event.deadline!=None and event.deadline<timezone.now()):
-            return Response({'error': 'Registrations closed.'}, status=status.HTTP_401_UNAUTHORIZED)
+        # if not event.is_active or (event.deadline!=None and event.deadline<timezone.now()):
+        #     return Response({'error': 'Registrations closed.'}, status=status.HTTP_401_UNAUTHORIZED)
         if event.reg_redirect_link!=None:
             return Response({'error': 'Not allowed.'}, status=status.HTTP_400_BAD_REQUEST)
         user = request.user

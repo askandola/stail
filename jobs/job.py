@@ -1,13 +1,15 @@
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core import mail
-from django.core.mail import EmailMultiAlternatives
+from django.core.mail import EmailMultiAlternatives, EmailMessage
 from django.conf import settings
 from registrations.models import PendingEmail, UnverifiedUser
 from events.models import Team, EventUserTable
 from info.views import update_db_from_cache
 from registrations.serializers import UserSerializer
+from registrations.models import User
 from django.core.cache import cache
+import csv
 
 EMAIL_HOST_USERS = [settings.EMAIL_HOST_USER1, settings.EMAIL_HOST_USER2, settings.EMAIL_HOST_USER3]
 EMAIL_HOST_PASSWORDS = [settings.EMAIL_HOST_PASSWORD1, settings.EMAIL_HOST_PASSWORD2, settings.EMAIL_HOST_PASSWORD3]
@@ -117,3 +119,30 @@ def move_to_verified():
         if serializer.is_valid():
             serializer.save()
             user.delete()
+
+import os
+def finalScheduleMail():
+    connection = mail.get_connection(username=settings.EMAIL_HOST_USER, password=settings.EMAIL_HOST_PASSWORD, fail_silently=False)
+    connection.open()
+    from_email= settings.EMAIL_HOST_USER
+    users = User.objects.filter(is_thaparian=False).all()
+    path = os.path.join(settings.BASE_DIR, 'jobs/Schedule_Saturnalia22.pdf')
+    for user in users:
+        subj = "Updated and Final Schedule of Saturnalia 2022"
+        mesg = """Greetings!
+Hold your breath; as the universe arrives at the brink of its collapse, the Cosmic Dawn rearranges itself to present you with an extraordinary form of enchantment. Prepare yourselves as we bring forth star-studded events full of cultural and technological fun and competitions.
+
+Mark your calendars as the intergalactic fiesta is here, to begin with, a universal bang.
+
+The itinerary for the Fest is attached below.
+
+It is a chance to get immersed in the boundless energy and ignite the fire and experience the culture at Thapar Institute of Engineering and Technology.
+Join us for a fun and frolic fortnight from 24th to 27th November 2022.
+
+Regards
+Team Saturnalia"""
+        email = EmailMessage(subj, mesg, from_email, [user.email])
+        email.attach_file(path)
+        connection.send_messages([email])
+        print(user.email)
+    connection.close()
