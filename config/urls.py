@@ -23,7 +23,7 @@ from registrations.views import VerifyEmail
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('auth/', include('registrations.urls')),
+    # path('auth/', include('registrations.urls')),
     path('event/', include('events.urls')),
     path('info/', include('info.urls')),
     path('dashboard/', DashboardView),
